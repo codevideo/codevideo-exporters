@@ -1,18 +1,18 @@
-# @fullstackcraft/codevideo-doc-gen
+# @fullstackcraftllc/codevideo-doc-gen
 
-![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-virtual-ide)
+![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-doc-gen)
 
 `codevideo-doc-gen` includes a series of TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
 
-This library heavily relies on the types from [codevideo-types](https://github.com/codevideo/codevideo-types)
+This library heavily relies on the types from [@fullstackcraftllc/codevideo-types](https://github.com/codevideo/codevideo-types)
 
 ## Usage
 
 Generate markdown from just an array of `IAction`s:
 
 ```typescript
-import { generateMarkdownFromActions } from '@fullstackcraft/codevideo-doc-gen';
-import { IAction } from '@fullstackcraft/codevideo-types';
+import { generateMarkdownFromActions } from '@fullstackcraftllc/codevideo-doc-gen';
+import { IAction } from '@fullstackcraftllc/codevideo-types';
 
 const actions: Array<IAction> = [
   {
