@@ -1,104 +1,140 @@
-# @fullstackcraft/codevideo-virtual-ide
+# @fullstackcraft/codevideo-doc-gen
 
 ![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-virtual-ide)
 
-`codevideo-virtual-ide` is a TypeScript class that simulates a terminal with features like cursor navigation, text insertion, and line manipulation. It provides a flexible interface for applying various editing actions such as typing, moving the cursor, and executing commands. This lightweight and versatile library is ideal for building educational tools, code playgrounds, and interactive coding environments within web applications.
+`codevideo-doc-gen` includes a series of TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
 
 This library heavily relies on the types from [codevideo-types](https://github.com/codevideo/codevideo-types)
 
-## Example Usage
+## Usage
+
+Generate markdown from just an array of `IAction`s:
 
 ```typescript
-import { VirtualIDE } from '@fullstackcraftllc/codevideo-virtual-ide';
-import { VirtualEditor } from '@fullstackcraftllc/codevideo-virtual-editor';
-import { VirtualTerminal } from '@fullstackcraftllc/codevideo-virtual-terminal';
-import { VirtualAuthor } from '@fullstackcraftllc/codevideo-virtual-author';
+import { generateMarkdownFromActions } from '@fullstackcraft/codevideo-doc-gen';
+import { IAction } from '@fullstackcraft/codevideo-types';
 
-const virtualIDE = new VirtualIDE();
-virtualIDE.addVirtualEditor(new VirtualEditor());
-virtualIDE.addVirtualTerminal(new VirtualTerminal());
-virtualIDE.addVirtualAuthor(new VirtualAuthor());
-
-// Create a basic project structure
-virtualIDE.applyAction({
-  name: 'create-folder',
-  value: 'src'
-});
-
-virtualIDE.applyAction({
-  name: 'create-file',
-  value: 'src/index.js'
-});
-
-// Add narration
-virtualIDE.applyAction({
-  name: 'speak-before',
-  value: "Let's create a simple JavaScript program."
-});
-
-// Open and edit the file
-virtualIDE.applyAction({
-  name: 'click-filename',
-  value: 'src/index.js'
-});
-
-virtualIDE.applyAction({
-  name: 'type-editor',
-  value: 'console.log("Hello, World!");'
-});
-
-// Execute in terminal
-virtualIDE.applyAction({
-  name: 'open-terminal',
-  value: '1'
-});
-
-virtualIDE.applyAction({
-  name: 'type-terminal',
-  value: 'node src/index.js'
-});
-
-const courseSnapshot = virtualIDE.getCourseSnapshot();
-
-console.log(courseSnapshot);
-/* Output:
-{
-  editorSnapshot: {
-    fileStructure: {
-      src: {
-        type: 'directory',
-        content: '',
-        collapsed: false,
-        children: {
-          'index.js': {
-            type: 'file',
-            content: 'console.log("Hello, World!");',
-            language: 'js',
-            caretPosition: { row: 0, col: 27 }
-          }
-        }
-      }
-    },
-    currentFile: 'src/index.js',
-    terminalContents: 'node src/index.js'
+const actions: Array<IAction> = [
+  {
+    "name": "author-speak-before",
+    "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
   },
-  mouseSnapshot: {
-    x: 0,
-    y: 0,
-    timestamp: 0,
-    type: 'move',
-    buttonStates: { left: false, right: false, middle: false },
-    scrollPosition: { x: 0, y: 0 }
+  {
+    "name": "editor-type",
+    "value": "console.log('Hello World!');"
   },
-  authorSnapshot: {
-    currentSpeechCaption: ""
+  {
+    "name": "author-speak-before",
+    "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
   }
+]
+
+const markdown = generateMarkdownFromActions(actions);
+console.log(markdown);
+// Output:
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
+```
+
+Generate markdown from an `ILesson`:
+
+```typescript
+import { generateMarkdownFromLesson } from '@fullstackcraft/codevideo-doc-gen';
+import { ILesson } from '@fullstackcraft/codevideo-types';
+
+const lesson: ILesson = {
+  "title": "Hello World",
+  "description": "In this lesson, we're going to do a simple hello world example.",
+  "actions": [
+    {
+      "name": "author-speak-before",
+      "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+    },
+    {
+      "name": "editor-type",
+      "value": "console.log('Hello World!');"
+    },
+    {
+      "name": "author-speak-before",
+      "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+    }
+  ]
 }
-*/
+
+const markdown = generateMarkdownFromLesson(lesson);
+console.log(markdown);
+// Output:
+// # Hello World
+//
+// In this lesson, we're going to do a simple hello world example.
+//
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
+```
+
+Generate markdown from an `ICourse`, which includes one or more `ILesson`s:
+
+```typescript
+import { generateMarkdownFromCourse } from '@fullstackcraft/codevideo-doc-gen';
+import { ICourse } from '@fullstackcraft/codevideo-types';
+
+const course: ICourse = {
+  "title": "Hello World Course",
+  "description": "This course has just one lesson, which is building a hello world example.",
+  "lessons": [
+    {
+      "title": "Hello World",
+      "description": "In this lesson, we're going to do a simple hello world example.",
+      "actions": [
+        {
+          "name": "author-speak-before",
+          "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+        },
+        {
+          "name": "editor-type",
+          "value": "console.log('Hello World!');"
+        },
+        {
+          "name": "author-speak-before",
+          "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+        }
+      ]
+    }
+  ]
+}
+
+const markdown = generateMarkdownFromCourse(course);
+console.log(markdown);
+// Output:
+// # Hello World Course
+//
+// This course has just one lesson, which is building a hello world example.
+//
+// ## Hello World
+//
+// In this lesson, we're going to do a simple hello world example.
+//
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
 ```
 
 ## Why?
 
-This library is the main powerhouse used to build projections that are used to validate actions across the CodeVideo ecosystem. This is a small part of a larger project to create a declarative way to build, edit, and generate step by step educational video software courses.
+Imagine you've defined all your steps of an awesome software course in a JSON file. You want to render this JSON file into a video, as a markdown blog post, or a sellable PDF. This is exactly what the CodeVideo library does. It takes in a JSON file and renders it into a video, markdown, or PDF.
 
 See more at [codevideo.io](https://codevideo.io)

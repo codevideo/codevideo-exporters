@@ -1,7 +1,7 @@
 {
-  "name": "@fullstackcraftllc/codevideo-virtual-ide",
-  "version": "1.0.6",
-  "description": "TypeScript class that simulates a full IDE.",
+  "name": "@fullstackcraftllc/codevideo-doc-gen",
+  "version": "0.0.1",
+  "description": "Generates various markdown, PDF, or HTML tutorials for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -16,10 +16,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/codevideo/codevideo-virtual-ide.git"
+    "url": "https://github.com/codevideo/codevideo-doc-gen.git"
   },
   "issues": {
-    "url": "https://github.com/codevideo/codevideo-virtual-ide/issues"
+    "url": "https://github.com/codevideo/codevideo-doc-gen/issues"
   },
   "author": "Chris Frewin",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "@babel/core": "^7.24.0",
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-typescript": "^7.23.3",
+    "@fullstackcraftllc/codevideo-types": "^2.0.12",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "babel-jest": "^29.7.0",
@@ -37,12 +38,6 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@fullstackcraftllc/codevideo-virtual-author": "^1.0.2",
-    "@fullstackcraftllc/codevideo-virtual-editor": "^1.6.4",
-    "@fullstackcraftllc/codevideo-virtual-file-explorer": "^1.0.6",
-    "@fullstackcraftllc/codevideo-virtual-terminal": "^1.0.1"
-  },
-  "peerDependencies": {
-    "@fullstackcraftllc/codevideo-types": "^2.0.12"
+    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.6"
   }
 }

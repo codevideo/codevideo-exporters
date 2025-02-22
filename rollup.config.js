@@ -4,10 +4,7 @@ import dts from 'rollup-plugin-dts';
 // externals
 const external = [
   "@fullstackcraftllc/codevideo-types",
-  "@fullstackcraftllc/codevideo-virtual-file-explorer",
-  "@fullstackcraftllc/codevideo-virtual-editor",
-  "@fullstackcraftllc/codevideo-virtual-terminal",
-  "@fullstackcraftllc/codevideo-virtual-author",
+  "@fullstackcraftllc/codevideo-virtual-ide",
 ];
 
 export default [
