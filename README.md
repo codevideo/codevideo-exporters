@@ -2,9 +2,26 @@
 
 ![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-doc-gen)
 
-`codevideo-doc-gen` includes a series of TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
+`codevideo-doc-gen` includes a series of browser-compatible TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
 
 This library heavily relies on the types from [@fullstackcraftllc/codevideo-types](https://github.com/codevideo/codevideo-types)
+
+## Installation
+
+```shell
+npm install @fullstackcraftllc/codevideo-doc-gen
+```
+
+Install peer dependencies:
+
+```shell
+npm install highlight.js marked marked-highlight
+```
+These dependencies are required for:
+- `marked`: Markdown parsing
+- `marked-highlight`: Markdown code block highlighting
+- `highlight.js`: Code syntax highlighting (used with `marked-highlight`)
+
 
 ## Usage
 

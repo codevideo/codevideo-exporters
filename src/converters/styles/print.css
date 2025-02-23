@@ -1,0 +1,41 @@
+@media print {
+    body {
+      margin: 2.5cm;
+      font-size: 11pt;
+    }
+  
+    pre {
+      background: none !important;
+      border: 1px solid #ddd !important;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  
+    code {
+      color: #000 !important;
+    }
+  
+    .token.deleted {
+      background: none !important;
+      color: #b31d28 !important;
+      text-decoration: line-through;
+    }
+    
+    .token.inserted {
+      background: none !important;
+      color: #22863a !important;
+    }
+  
+    h1, h2 {
+      page-break-before: always;
+    }
+  
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+  
+    a[href]::after {
+      content: " (" attr(href) ")";
+    }
+  }

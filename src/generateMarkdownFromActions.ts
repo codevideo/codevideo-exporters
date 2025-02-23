@@ -21,6 +21,7 @@ export const generateMarkdownFromActions = (actions: IAction[], options?: IGener
   let markdown = '';
   const virtualIDE = new VirtualIDE();
   for (const action of actions) {
+    // regardless of action, apply it
     virtualIDE.applyAction(action);
 
     // for strictlyStepByStep mode, always show the code snippet, regardless of how small the code change is

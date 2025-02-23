@@ -1,0 +1,25 @@
+
+pre {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+}
+
+.diff-highlight {
+    background: #f6f8fa;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.diff-highlight .token.deleted {
+    background-color: #ffeef0;
+    color: #b31d28;
+}
+
+.diff-highlight .token.inserted {
+    background-color: #e6ffed;
+    color: #22863a;
+}
+
+.diff-highlight .token.diff {
+    color: #24292e;
+}
