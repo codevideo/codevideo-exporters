@@ -1,7 +1,7 @@
 import { ICourse } from "@fullstackcraftllc/codevideo-types";
 import JSZip from 'jszip';
-import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
 
 /**
  * Given a course, generates a ZIP file containing markdown, HTML, and PDF exports.
@@ -12,7 +12,7 @@ export const generateZipFromCourse = async (course: ICourse, options?: IGenerate
     const zip = new JSZip();
     
     // Generate markdown content
-    const markdown = generateMarkdownFromCourse(course, options);
+    const markdown = generateMarkdownStringFromCourse(course, options);
     
     // Add markdown to zip
     zip.file("course.md", markdown);

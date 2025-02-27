@@ -2,8 +2,8 @@ import {
     IAction,
 } from "@fullstackcraftllc/codevideo-types";
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
-import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
 import { generateHtml } from "./generateHtml";
+import { generateMarkdownStringFromActions } from "./core/generateMarkdownStringFromActions";
 
 /**
  * Given a list of actions, generates an HTML file based on various parameters.
@@ -13,7 +13,7 @@ import { generateHtml } from "./generateHtml";
  */
 export const generateHtmlFromActions = async (actions: IAction[], options?: IGenerateMarkdownOptions) => {
     // generate markdown
-    const markdown = generateMarkdownFromActions(actions);
+    const markdown = generateMarkdownStringFromActions(actions);
 
     // generate html!
     await generateHtml(markdown);

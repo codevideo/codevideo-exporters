@@ -1,7 +1,7 @@
 import { ILesson } from "@fullstackcraftllc/codevideo-types";
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
-import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
 import { generateHtml } from "./generateHtml";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
 
 /**
  * Given a lesson, generates an HTML file based on various parameters.
@@ -10,7 +10,7 @@ import { generateHtml } from "./generateHtml";
  */
 export const generateHtmlFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
     // generate markdown
-    const markdown = generateMarkdownFromLesson(lesson, options);
+    const markdown = generateMarkdownStringFromLesson(lesson, options);
 
     // generate html!
     await generateHtml(markdown);

@@ -1,6 +1,6 @@
-import { generateMarkdownFromActions } from "../../src/generateMarkdownFromActions";
 import { describe, expect, it } from "@jest/globals";
 import { IAction } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromActions } from "../../src/core/generateMarkdownStringFromActions";
 
 describe("generateMarkdown", () => {
   describe("simple actions", () => {
@@ -28,7 +28,7 @@ describe("generateMarkdown", () => {
         }
       ]
 
-      const markdown = generateMarkdownFromActions(superSimpleActions);
+      const markdown = generateMarkdownStringFromActions(superSimpleActions);
 
       expect(markdown).toBe("To showcase how codevideo works, we're just going to do a super basic hello world example here in src.\n\n```javascript\nconsole.log('Hello World!');\n```\n\nNice, that looks pretty good! Pretty cool tool, right?!\n\n");
     });

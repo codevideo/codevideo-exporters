@@ -1,7 +1,7 @@
 {
   "name": "@fullstackcraftllc/codevideo-doc-gen",
-  "version": "0.0.10",
-  "description": "Generates various markdown, PDF, or HTML tutorials for professional quality educational tutorials, walkthroughs, and blog posts.",
+  "version": "0.0.11",
+  "description": "Generates various markdown, PDF, or HTML downloads for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

@@ -1,6 +1,6 @@
-import { generateMarkdownFromCourse } from "../../src/generateMarkdownFromCourse";
 import { describe, expect, it } from "@jest/globals";
 import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromCourse } from "../../src/core/generateMarkdownStringFromCourse";
 
 describe("generateMarkdownFromCourse", () => {
   describe("simple course", () => {
@@ -50,7 +50,7 @@ describe("generateMarkdownFromCourse", () => {
         "```javascript\nconsole.log('Hello World!');\n```\n\n" +
         "Nice, that looks pretty good! Pretty cool tool, right?!\n\n";
 
-      const markdown = generateMarkdownFromCourse(course);
+      const markdown = generateMarkdownStringFromCourse(course);
       expect(markdown).toBe(expectedMarkdown);
     });
   });

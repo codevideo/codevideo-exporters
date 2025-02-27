@@ -1,7 +1,7 @@
 import { ILesson } from "@fullstackcraftllc/codevideo-types";
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
-import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
 import { generatePdf } from "./generatePdf";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
 
 /**
  * Given a lesson, generates a PDF file based on various parameters.
@@ -10,7 +10,7 @@ import { generatePdf } from "./generatePdf";
  */
 export const generatePdfFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
     // generate markdown
-    const markdown = generateMarkdownFromLesson(lesson, options);
+    const markdown = generateMarkdownStringFromLesson(lesson, options);
 
     // generate pdf!
     await generatePdf(markdown);

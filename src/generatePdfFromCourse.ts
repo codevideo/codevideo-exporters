@@ -1,7 +1,7 @@
 import { ICourse } from "@fullstackcraftllc/codevideo-types";
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
-import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
 import { generatePdf } from "./generatePdf";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
 
 /**
  * Given a course, generates a PDF file based on various parameters.
@@ -10,7 +10,7 @@ import { generatePdf } from "./generatePdf";
  */
 export const generatePdfFromCourse = async (course: ICourse, options?: IGenerateMarkdownOptions) => {
     // generate markdown
-    const markdown = generateMarkdownFromCourse(course, options);
+    const markdown = generateMarkdownStringFromCourse(course, options);
 
     // generate pdf!
     await generatePdf(markdown);

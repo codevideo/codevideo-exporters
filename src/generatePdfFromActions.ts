@@ -4,16 +4,17 @@ import {
 import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
 import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
 import { generatePdf } from "./generatePdf";
+import { generateMarkdown } from "./generateMarkdown";
+import { generateMarkdownStringFromActions } from "./core/generateMarkdownStringFromActions";
 
 /**
- * Given a list of actions, generates a PDF based on various parameters.
+ * Given a list of actions, triggers a PDF download based on various parameters.
  * @param actions The list of actions to generate markdown from.
  * @param options The options to use when generating markdown.
- * @returns The markdown generated from the actions.
  */
 export const generatePdfFromActions = async (actions: IAction[], options?: IGenerateMarkdownOptions) => {
     // generate markdown
-    const markdown = generateMarkdownFromActions(actions);
+    const markdown = generateMarkdownStringFromActions(actions);
 
     // generate pdf!
     await generatePdf(markdown);

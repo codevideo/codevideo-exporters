@@ -1,8 +1,6 @@
 import { Project, isCourse, isLesson, isActions, ExportType } from "@fullstackcraftllc/codevideo-types";
 import { generateHtmlFromActions } from "./generateHtmlFromActions";
 import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
-import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
-import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
 import { generatePdfFromActions } from "./generatePdfFromActions";
 import { generateZipFromActions } from "./generateZipFromActions";
 import { generateHtmlFromCourse } from "./generateHtmlFromCourse";
@@ -14,6 +12,8 @@ import { generateZipFromLesson } from "./generateZipFromLesson";
 import { generateJsonFromCourse } from "./generateJsonFromCourse";
 import { generateJsonFromLesson } from "./generateJsonFromLesson";
 import { generateJsonFromActions } from "./generateJsonFromActions";
+import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
+import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
 
 /**
  * A dynamic function that exports a project to a specific format.
