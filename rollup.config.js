@@ -8,7 +8,8 @@ const external = [
   "@fullstackcraftllc/codevideo-virtual-ide",
   "marked",
   "marked-highlight",
-  "highlight.js"
+  "highlight.js",
+  "jszip"
 ];
 
 export default [
