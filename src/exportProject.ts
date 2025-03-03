@@ -1,4 +1,4 @@
-import { Project, isCourse, isLesson, isActions, ExportType } from "@fullstackcraftllc/codevideo-types";
+import { Project, isCourse, isLesson, isValidActions, ExportType } from "@fullstackcraftllc/codevideo-types";
 import { generateHtmlFromActions } from "./generateHtmlFromActions";
 import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
 import { generatePdfFromActions } from "./generatePdfFromActions";
@@ -58,19 +58,19 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     }
 
     // all actions exports
-    if (isActions(project) && exportType === 'markdown') {
+    if (isValidActions(project) && exportType === 'markdown') {
         await generateMarkdownFromActions(project);
     }
-    if (isActions(project) && exportType === 'html') {
+    if (isValidActions(project) && exportType === 'html') {
         await generateHtmlFromActions(project);
     }
-    if (isActions(project) && exportType === 'pdf') {
+    if (isValidActions(project) && exportType === 'pdf') {
         await generatePdfFromActions(project);
     }
-    if (isActions(project) && exportType === 'zip') {
+    if (isValidActions(project) && exportType === 'zip') {
         await generateZipFromActions(project);
     }
-    if (isActions(project) && exportType === 'json') {
+    if (isValidActions(project) && exportType === 'json') {
         await generateJsonFromActions(project);
     }
 }
