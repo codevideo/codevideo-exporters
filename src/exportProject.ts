@@ -14,6 +14,9 @@ import { generateJsonFromLesson } from "./generateJsonFromLesson";
 import { generateJsonFromActions } from "./generateJsonFromActions";
 import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
 import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
+import { generatePptxFromCourse } from "./generatePptxFromCourse";
+import { generatePptxFromActions } from "./generatePptxFromActions";
+import { generatePptxFromLesson } from "./generatePptxFromLesson";
 
 /**
  * A dynamic function that exports a project to a specific format.
@@ -39,6 +42,9 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     if (isCourse(project) && exportType === 'json') {
         await generateJsonFromCourse(project);
     }
+    if (isCourse(project) && exportType === 'pptx') {
+        await generatePptxFromCourse(project);
+    }
 
     // all lesson exports
     if (isLesson(project) && exportType === 'markdown') {
@@ -56,6 +62,9 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     if (isLesson(project) && exportType === 'json') {
         await generateJsonFromLesson(project);
     }
+    if (isLesson(project) && exportType === 'pptx') {
+        await generatePptxFromLesson(project);
+    }
 
     // all actions exports
     if (isValidActions(project) && exportType === 'markdown') {
@@ -72,5 +81,8 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     }
     if (isValidActions(project) && exportType === 'json') {
         await generateJsonFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'pptx') {
+        await generatePptxFromActions(project);
     }
 }

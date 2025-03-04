@@ -1,0 +1,1569 @@
+## src/converters/convertToHtml.ts
+
+```
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js';
+import baseStyles from './styles/base.css';
+import screenStyles from './styles/screen.css';
+import printStyles from './styles/print.css';
+
+interface HtmlGeneratorOptions {
+  enableDiff?: boolean;
+  isPdf?: boolean;
+  title?: string;
+  additionalStyles?: string;
+}
+
+const defaultOptions: HtmlGeneratorOptions = {
+  enableDiff: true,
+  isPdf: false,
+  title: 'CodeVideo',
+  additionalStyles: ''
+};
+
+// Initialize marked with modern syntax highlighting
+const marked = new Marked(
+  markedHighlight({
+    async: true,
+    emptyLangClass: 'hljs',
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+      // if (!lang) return code;
+
+      // // Special handling for diff + language combo (e.g., "typescript diff")
+      // if (lang.includes('diff')) {
+      //   const baseLang = lang.replace('diff', '').trim();
+      //   // First highlight with the base language if it exists
+      //   let highlighted = code;
+      //   if (baseLang && hljs.getLanguage(baseLang)) {
+      //     highlighted = hljs.highlight(code, { language: baseLang }).value;
+      //   }
+      //   // Then apply diff highlighting
+      //   return hljs.highlight(highlighted, { language: 'diff' }).value;
+      // }
+
+      // // Regular language highlighting
+      // try {
+      //   return hljs.highlight(code, { language: lang }).value;
+      // } catch (err) {
+      //   console.warn(`Language ${lang} not found, using plaintext`);
+      //   return hljs.highlight(code, { language: 'plaintext' }).value;
+      // }
+    }
+  })
+);
+
+export const convertToHtml = async (
+  content: string,
+  options: Partial<HtmlGeneratorOptions> = {}
+) => {
+  const mergedOptions = { ...defaultOptions, ...options };
+  const { isPdf, title, additionalStyles } = mergedOptions;
+
+  console.log(content);
+  const html = await marked.parse(content);
+  console.log(html)
+
+  // TODO: make this configurable - needs to be lowercase filename
+  const highlightTheme = 'github';
+
+  const styleContent = `
+    ${baseStyles}
+    ${isPdf ? printStyles : screenStyles}
+    ${additionalStyles}
+  `;
+
+  return `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${title}</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${highlightTheme}.min.css">
+      <style>${styleContent}</style>
+    </head>
+    <body>
+      ${html}
+    </body>
+  </html>
+  `;
+};
+```
+
+## src/converters/styles/base.css
+
+```
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+pre {
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.9em;
+}
+
+code {
+    font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.25;
+}
+```
+
+## src/converters/styles/print.css
+
+```
+@media print {
+    body {
+      margin: 2.5cm;
+      font-size: 11pt;
+    }
+
+    pre {
+      background: none !important;
+      border: 1px solid #ddd !important;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    code {
+      color: #000 !important;
+    }
+
+    .token.deleted {
+      background: none !important;
+      color: #b31d28 !important;
+      text-decoration: line-through;
+    }
+
+    .token.inserted {
+      background: none !important;
+      color: #22863a !important;
+    }
+
+    h1, h2 {
+      page-break-before: always;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+
+    a[href]::after {
+      content: " (" attr(href) ")";
+    }
+  }
+```
+
+## src/converters/styles/screen.css
+
+```
+pre {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+}
+
+.diff-highlight {
+    background: #f6f8fa;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.diff-highlight .token.deleted {
+    background-color: #ffeef0;
+    color: #b31d28;
+}
+
+.diff-highlight .token.inserted {
+    background-color: #e6ffed;
+    color: #22863a;
+}
+
+.diff-highlight .token.diff {
+    color: #24292e;
+}
+```
+
+## src/core/generateMarkdownStringFromActions.ts
+
+```
+import { IAction, isEditorAction } from "@fullstackcraftllc/codevideo-types";
+import { VirtualIDE } from "@fullstackcraftllc/codevideo-virtual-ide";
+import { IGenerateMarkdownOptions } from "../interfaces/IGenerateMarkdownOptions";
+import { getFileExtension } from "../utils/getFileExtension";
+
+/**
+ * The core markdown generator for codevideo-doc-gen.
+ * Used by html and pdf generators, and of course the markdown generator itself.
+ * @param actions
+ * @param options
+ * @returns The generated markdown
+ */
+export const generateMarkdownStringFromActions = (actions: IAction[], options?: IGenerateMarkdownOptions) => {
+    const { strictlyStepByStep } = options || {
+        strictlyStepByStep: false
+    };
+    // for each action, apply it to the virtual IDE and generate the corresponding markdown
+    let currentActionIndex = 0;
+    let markdown = '';
+    const virtualIDE = new VirtualIDE();
+    for (const action of actions) {
+        // regardless of action, apply it
+        virtualIDE.applyAction(action);
+
+        // for strictlyStepByStep mode, always show the code snippet, regardless of how small the code change is
+        if (strictlyStepByStep) {
+            // get the full content of the current file
+            const editorSnapshot = virtualIDE.getEditorSnapshot();
+            const editorContent = editorSnapshot.editors[0].content;
+            const editorFileExtension = editorSnapshot.editors[0].filename;
+            const fileExtension = getFileExtension(editorFileExtension);
+            const codeBlockName = getMarkdownCodeBlockNameFromFileExtension(fileExtension);
+            markdown += '```' + codeBlockName + '\n' + editorContent + '\n```\n\n';
+
+            currentActionIndex++;
+
+            continue;
+        }
+
+        // otherwise,
+        switch (true) {
+            case action.name.startsWith('author-'):
+                markdown += `${action.value}\n\n`;
+                break;
+            case action.name.startsWith('file-explorer-'):
+                // show the file tree
+                // TODO: add to virtualIDE
+                // const fileExplorerTree = virtualIDE.getFileExplorerTree();
+                // markdown += '```\n' + fileExplorerTree + '\n```\n\n';
+
+                // for now could use this - won't look too nice but it's better than nothing
+                // const fileExplorerSnapshot = virtualIDE.getFileExplorerSnapshot();
+                // markdown += '```\n' + JSON.stringify(fileExplorerSnapshot.fileStructure, null, 2) + '\n```\n\n';
+                break;
+            case action.name.startsWith('editor-'):
+                // get the full content of the current file
+
+                // since we are not in strictlyStepByStep mode, we only do this if the previous action is NOT an editor-type action
+                const previousAction = currentActionIndex > 0 ? actions[currentActionIndex - 1] : null;
+                if (previousAction && isEditorAction(previousAction)) {
+                    break;
+                }
+
+                const editorSnapshot = virtualIDE.getEditorSnapshot();
+                const editorContent = editorSnapshot.editors[0].content;
+                const editorFileExtension = editorSnapshot.editors[0].filename;
+                const fileExtension = getFileExtension(editorFileExtension);
+                const codeBlockName = getMarkdownCodeBlockNameFromFileExtension(fileExtension);
+                markdown += '```' + codeBlockName + '\n' + editorContent + '\n```\n\n';
+                break;
+            case action.name.startsWith('terminal-'):
+                markdown += '```shell\n' + action.value + '\n```\n\n';
+                break;
+        }
+
+        currentActionIndex++;
+    }
+
+    return markdown;
+}
+
+const getMarkdownCodeBlockNameFromFileExtension = (fileExtension: string): string => {
+    switch (fileExtension) {
+        case 'html':
+            return 'html';
+        case 'css':
+            return 'css';
+        case 'js':
+            return 'javascript';
+        case 'ts':
+            return 'typescript';
+        case 'json':
+            return 'json';
+        case 'md':
+            return 'markdown';
+        case 'sh':
+            return 'shell';
+        case 'py':
+            return 'python';
+        case 'java':
+            return 'java';
+        case 'c':
+            return 'c';
+        case 'cpp':
+            return 'cpp';
+        case 'cs':
+            return 'csharp';
+        case 'rb':
+            return 'ruby';
+        case 'php':
+            return 'php';
+        case 'go':
+            return 'go';
+        case 'rs':
+            return 'rust';
+        case 'swift':
+            return 'swift';
+        case 'kt':
+            return 'kotlin';
+        case 'scala':
+            return 'scala';
+        case 'pl':
+            return 'perl';
+        case 'r':
+            return 'r';
+        case 'sql':
+            return 'sql';
+        case 'graphql':
+            return 'graphql';
+        case 'yaml':
+            return 'yaml';
+        case 'toml':
+            return 'toml';
+        case 'xml':
+            return 'xml';
+        case 'yml':
+            return 'yaml';
+        default:
+            console.warn(`Unknown file extension: ${fileExtension}`);
+            return '';
+    }
+}
+```
+
+## src/core/generateMarkdownStringFromCourse.ts
+
+```
+import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromLesson } from "./generateMarkdownStringFromLesson";
+import { IGenerateMarkdownOptions } from "../interfaces/IGenerateMarkdownOptions";
+
+/**
+ *
+ * @param course
+ * @param options
+ * @returns
+ */
+export const generateMarkdownStringFromCourse = (course: ICourse, options?: IGenerateMarkdownOptions): string => {
+    let markdown = '';
+    // course name is level 1 header
+    markdown += '# ' + course.name + '\n\n';
+    markdown += course.description + '\n\n';
+    for (const lesson of course.lessons) {
+        markdown += generateMarkdownStringFromLesson(lesson, options);
+    }
+    return markdown;
+}
+```
+
+## src/core/generateMarkdownStringFromLesson.ts
+
+```
+import { ILesson } from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "../interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownStringFromActions } from "./generateMarkdownStringFromActions";
+
+/**
+ *
+ * @param lesson
+ * @param options
+ * @returns
+ */
+export const generateMarkdownStringFromLesson = (lesson: ILesson, options?: IGenerateMarkdownOptions): string => {
+    let markdown = '';
+    // lesson title is level 2 header
+    markdown += '## ' + lesson.name + '\n\n';
+    markdown += lesson.description + '\n\n';
+    markdown += generateMarkdownStringFromActions(lesson.actions, options);
+    return markdown;
+}
+```
+
+## src/generateHtml.ts
+
+```
+import { convertToHtml } from "./converters/convertToHtml";
+
+export const generateHtml = async (markdown: string) => {
+    const fullHtml = await convertToHtml(markdown, {
+      title: 'CodeVideo HTML Export'
+    });
+
+    const blob = new Blob([fullHtml], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+
+    try {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'codevideo-html-export.html';
+      link.click();
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  };
+```
+
+## src/generateJsonFromActions.ts
+
+```
+import { downloadBlob } from './utils/downloadBlob';
+
+export async function generateJsonFromActions(actions: any): Promise<void> {
+    const jsonString = JSON.stringify(actions, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    downloadBlob(blob, 'codevideo-actions-export.json');
+}
+```
+
+## src/generateJsonFromCourse.ts
+
+```
+import { downloadBlob } from "./utils/downloadBlob";
+
+export async function generateJsonFromCourse(course: any): Promise<void> {
+    const jsonString = JSON.stringify(course, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    downloadBlob(blob, 'codevideo-actions-export.json');
+}
+```
+
+## src/generateJsonFromLesson.ts
+
+```
+import { downloadBlob } from "./utils/downloadBlob";
+
+export async function generateJsonFromLesson(lesson: any): Promise<void> {
+    const jsonString = JSON.stringify(lesson, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    downloadBlob(blob, 'codevideo-actions-export.json');
+}
+```
+
+## src/generateMarkdown.ts
+
+```
+export const generateMarkdown = async (markdown: string) => {
+    // trigger download
+    const element = document.createElement("a");
+    const file = new Blob([markdown], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = "codevideo-markdown-export.md";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+}
+```
+
+## src/generatePdf.ts
+
+```
+import { convertToHtml } from './converters/convertToHtml';
+
+export const generatePdf = async (markdown: string) => {
+  const fullHtml = await convertToHtml(markdown, {
+    isPdf: true,
+    title: 'CodeVideo PDF Export'
+  });
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    console.error('Failed to open print window');
+    return;
+  }
+
+  try {
+    printWindow.document.write(fullHtml);
+    printWindow.document.close();
+    printWindow.focus();
+
+    // Wait for document load and styles to be applied
+    await new Promise((resolve) => {
+      printWindow.onload = () => {
+        // Give extra time for highlight.js to process
+        setTimeout(() => {
+          resolve(undefined);
+        }, 1000);
+      };
+
+      // Fallback if onload doesn't fire
+      setTimeout(() => {
+        resolve(undefined);
+      }, 2000);
+    });
+
+    // Now trigger print
+    printWindow.print();
+
+    // Close window after printing
+    setTimeout(() => {
+      printWindow.close();
+    }, 500);
+  } catch (error) {
+    console.error('Error during PDF conversion:', error);
+    printWindow.close();
+  }
+};
+```
+
+## src/generateZip.ts
+
+```
+import JSZip from 'jszip';
+import { IFileEntry } from './interfaces/IFileEntry';
+
+export const generateZip = async (files: IFileEntry[]) => {
+  const zip = new JSZip();
+
+  // Add all files to the zip
+  for (const file of files) {
+    zip.file(file.path, file.content);
+  }
+
+  // Generate zip blob
+  const blob = await zip.generateAsync({
+    type: 'blob',
+    compression: 'DEFLATE',
+    compressionOptions: {
+      level: 9
+    }
+  });
+
+  // Create download link
+  const url = URL.createObjectURL(blob);
+
+  try {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'codevideo-export.zip';
+    link.click();
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+};
+```
+
+## src/generateZipFromActions.ts
+
+```
+import {
+    IAction,
+  } from "@fullstackcraftllc/codevideo-types";
+  import { VirtualIDE } from "@fullstackcraftllc/codevideo-virtual-ide";
+  import { generateZip } from "./generateZip";
+import { IFileEntry } from "./interfaces/IFileEntry";
+
+  /**
+   * Given a list of actions, generates a zip file containing all files created/modified during those actions.
+   * @param actions The list of actions to generate the zip from.
+   */
+  export const generateZipFromActions = async (actions: IAction[]) => {
+    // Create virtual IDE instance
+    const virtualIDE = new VirtualIDE();
+
+    // Apply all actions to build up the file system
+    for (const action of actions) {
+      virtualIDE.applyAction(action);
+    }
+
+    // Get file system snapshot
+    const fsSnapshot = virtualIDE.getFileExplorerSnapshot();
+    const files: Array<IFileEntry> = [];
+
+    // Helper function to recursively process file structure
+    const processFileStructure = (structure: any, currentPath: string = '') => {
+      for (const [name, content] of Object.entries(structure)) {
+        const path = currentPath ? `${currentPath}/${name}` : name;
+
+        if (typeof content === 'string') {
+          // It's a file
+          files.push({
+            path,
+            content: content as string
+          });
+        } else {
+          // It's a directory
+          processFileStructure(content, path);
+        }
+      }
+    };
+
+    // Process the file structure
+    processFileStructure(fsSnapshot.fileStructure);
+
+    // Generate and download zip
+    await generateZip(files);
+  };
+```
+
+## src/interfaces/IFileEntry.ts
+
+```
+export interface IFileEntry {
+    path: string;
+    content: string;
+}
+```
+
+## src/interfaces/IGenerateMarkdownOptions.ts
+
+```
+/**
+ * The options to use when generating markdown.
+ */
+export interface IGenerateMarkdownOptions {
+    withLessonPrefix: boolean; // if true adds a "Lesson X: {name}" prefix to every lesson title
+    strictlyStepByStep: boolean; // if true, editor actions are not collapsed into a single markdown block; every action is its own markdown block
+}
+```
+
+## src/types/css.d.ts
+
+```
+declare module '*.css' {
+    const content: string;
+    export default content;
+}
+```
+
+## src/utils/downloadBlob.ts
+
+```
+/**
+ * Creates a temporary download link for a blob and triggers the download
+ * @param blob The blob to download
+ * @param filename The name to give the downloaded file
+ */
+export const downloadBlob = (blob: Blob, filename: string): void => {
+    const url = URL.createObjectURL(blob);
+    try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+};
+```
+
+## src/utils/getFileExtension.ts
+
+```
+/**
+ * Extracts the file extension from a given filename.
+ * Handles cases with multiple dots and special characters.
+ *
+ * @param filename - The name of the file including extension
+ * @returns The file extension without the dot, or empty string if no extension
+ */
+export function getFileExtension(filename: string): string {
+    // Handle edge cases
+    if (!filename || typeof filename !== 'string') {
+        return '';
+    }
+
+    // Remove any leading/trailing whitespace
+    const cleanFilename = filename.trim();
+
+    // Handle filenames that start with a dot (hidden files)
+    if (cleanFilename.startsWith('.') && !cleanFilename.slice(1).includes('.')) {
+        return '';
+    }
+
+    // Split the filename by dots and get the last element
+    const parts = cleanFilename.split('.');
+
+    // Return empty string if no extension found
+    if (parts.length <= 1) {
+        return '';
+    }
+
+    // Get the last part (extension)
+    const extension = parts[parts.length - 1];
+
+    // Return lowercase extension
+    return extension.toLowerCase();
+}
+```
+
+## tsconfig.json
+
+```
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "ESNext",
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+  },
+  "include": ["src/"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+## __tests__/unit/ActionExample.ts
+
+```
+import { describe, expect, it } from "@jest/globals";
+import { IAction } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromActions } from "../../src/core/generateMarkdownStringFromActions";
+
+describe("generateMarkdown", () => {
+  describe("simple actions", () => {
+    it("should produce correct string output", () => {
+      const superSimpleActions: Array<IAction> = [
+        {
+          "name": 'file-explorer-create-file',
+          "value": 'src/hello-world.js'
+        },
+        {
+          "name": 'file-explorer-open-file',
+          "value": 'src/hello-world.js'
+        },
+        {
+          "name": "author-speak-before",
+          "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+        },
+        {
+          "name": "editor-type",
+          "value": "console.log('Hello World!');"
+        },
+        {
+          "name": "author-speak-before",
+          "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+        }
+      ]
+
+      const markdown = generateMarkdownStringFromActions(superSimpleActions);
+
+      expect(markdown).toBe("To showcase how codevideo works, we're just going to do a super basic hello world example here in src.\n\n```javascript\nconsole.log('Hello World!');\n```\n\nNice, that looks pretty good! Pretty cool tool, right?!\n\n");
+    });
+  });
+});
+```
+
+## __tests__/unit/CourseExample.ts
+
+```
+import { describe, expect, it } from "@jest/globals";
+import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromCourse } from "../../src/core/generateMarkdownStringFromCourse";
+
+describe("generateMarkdownFromCourse", () => {
+  describe("simple course", () => {
+    it("should produce correct markdown output from a course", () => {
+      const course: ICourse = {
+        id: "hello-world-course",
+        name: "Hello World Course",
+        description: "This course has just one lesson, which is building a hello world example.",
+        primaryLanguage: "javascript",
+        lessons: [
+          {
+            id: "hello-world",
+            name: "Hello World",
+            description: "In this lesson, we're going to do a simple hello world example.",
+            actions: [
+              {
+                name: "author-speak-before",
+                value: "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+              },
+              {
+                name: "file-explorer-create-file",
+                value: "src/hello-world.js"
+              },
+              {
+                name: "file-explorer-open-file",
+                value: "src/hello-world.js"
+              },
+              {
+                name: "editor-type",
+                value: "console.log('Hello World!');"
+              },
+              {
+                name: "author-speak-before",
+                value: "Nice, that looks pretty good! Pretty cool tool, right?!"
+              }
+            ]
+          }
+        ]
+      };
+
+      const expectedMarkdown =
+        "# Hello World Course\n\n" +
+        "This course has just one lesson, which is building a hello world example.\n\n" +
+        "## Hello World\n\n" +
+        "In this lesson, we're going to do a simple hello world example.\n\n" +
+        "To showcase how codevideo works, we're just going to do a super basic hello world example here in src.\n\n" +
+        "```javascript\nconsole.log('Hello World!');\n```\n\n" +
+        "Nice, that looks pretty good! Pretty cool tool, right?!\n\n";
+
+      const markdown = generateMarkdownStringFromCourse(course);
+      expect(markdown).toBe(expectedMarkdown);
+    });
+  });
+});
+```
+
+## __tests__/unit/LessonExample.ts
+
+```
+import { describe, expect, it } from "@jest/globals";
+import { ILesson } from "@fullstackcraftllc/codevideo-types";
+import { generateMarkdownStringFromLesson } from "../../src/core/generateMarkdownStringFromLesson";
+
+describe("generateMarkdownFromLesson", () => {
+  describe("simple lesson", () => {
+    it("should produce correct markdown output from a lesson", () => {
+      const lesson: ILesson = {
+        id: "hello-world",
+        name: "Hello World",
+        description: "In this lesson, we're going to do a simple hello world example.",
+        actions: [
+          {
+            name: "author-speak-before",
+            value: "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+          },
+          {
+            name: "file-explorer-create-file",
+            value: "src/hello-world.js"
+          },
+          {
+            name: "file-explorer-open-file",
+            value: "src/hello-world.js"
+          },
+          {
+            name: "editor-type",
+            value: "console.log('Hello World!');"
+          },
+          {
+            name: "author-speak-before",
+            value: "Nice, that looks pretty good! Pretty cool tool, right?!"
+          }
+        ]
+      };
+
+      const expectedMarkdown =
+        "## Hello World\n\n" +
+        "In this lesson, we're going to do a simple hello world example.\n\n" +
+        "To showcase how codevideo works, we're just going to do a super basic hello world example here in src.\n\n" +
+        "```javascript\nconsole.log('Hello World!');\n```\n\n" +
+        "Nice, that looks pretty good! Pretty cool tool, right?!\n\n";
+
+      const markdown = generateMarkdownStringFromLesson(lesson);
+      expect(markdown).toBe(expectedMarkdown);
+    });
+  });
+});
+```
+
+## src/generateHtmlFromActions.ts
+
+```
+import {
+    IAction,
+} from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateHtml } from "./generateHtml";
+import { generateMarkdownStringFromActions } from "./core/generateMarkdownStringFromActions";
+
+/**
+ * Given a list of actions, generates an HTML file based on various parameters.
+ * @param actions The list of actions to generate markdown from.
+ * @param options The options to use when generating markdown.
+ * @returns The markdown generated from the actions.
+ */
+export const generateHtmlFromActions = async (actions: IAction[], options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromActions(actions);
+
+    // generate html!
+    await generateHtml(markdown);
+}
+```
+
+## src/generateHtmlFromCourse.ts
+
+```
+import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateHtml } from "./generateHtml";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
+
+/**
+ * Given a course, generates an HTML file based on various parameters.
+ * @param course The course to generate HTML from.
+ * @param options The options to use when generating markdown.
+ */
+export const generateHtmlFromCourse = async (course: ICourse, options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromCourse(course, options);
+
+    // generate html!
+    await generateHtml(markdown);
+}
+```
+
+## src/generateHtmlFromLesson.ts
+
+```
+import { ILesson } from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateHtml } from "./generateHtml";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
+
+/**
+ * Given a lesson, generates an HTML file based on various parameters.
+ * @param lesson The lesson to generate HTML from.
+ * @param options The options to use when generating markdown.
+ */
+export const generateHtmlFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromLesson(lesson, options);
+
+    // generate html!
+    await generateHtml(markdown);
+}
+```
+
+## src/generateMarkdownFromCourse.ts
+
+```
+import {
+  ICourse,
+} from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdown } from "./generateMarkdown";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
+
+/**
+ * Given a course, generates a markdown download.
+ * @param actions The course to generate markdown from.
+ * @param options The options to use when generating markdown.
+ */
+export const generateMarkdownFromCourse = async (course: ICourse, options?: IGenerateMarkdownOptions) => {
+  // generate markdown string
+  const markdown = generateMarkdownStringFromCourse(course, options);
+
+  // trigger markdown download!
+  await generateMarkdown(markdown);
+}
+```
+
+## src/generateMarkdownFromLesson.ts
+
+```
+import {
+  ILesson,
+} from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdown } from "./generateMarkdown";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
+
+/**
+ * Given a lesson, generates a markdown download.
+ * @param actions The lesson to generate markdown from.
+ * @param options The options to use when generating markdown.
+ */
+export const generateMarkdownFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
+  // generate markdown string
+  const markdown = generateMarkdownStringFromLesson(lesson, options);
+
+  // trigger markdown download!
+  await generateMarkdown(markdown);
+}
+```
+
+## src/generatePdfFromActions.ts
+
+```
+import {
+    IAction,
+} from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
+import { generatePdf } from "./generatePdf";
+import { generateMarkdown } from "./generateMarkdown";
+import { generateMarkdownStringFromActions } from "./core/generateMarkdownStringFromActions";
+
+/**
+ * Given a list of actions, triggers a PDF download based on various parameters.
+ * @param actions The list of actions to generate markdown from.
+ * @param options The options to use when generating markdown.
+ */
+export const generatePdfFromActions = async (actions: IAction[], options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromActions(actions);
+
+    // generate pdf!
+    await generatePdf(markdown);
+}
+```
+
+## src/generatePdfFromCourse.ts
+
+```
+import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generatePdf } from "./generatePdf";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
+
+/**
+ * Given a course, generates a PDF file based on various parameters.
+ * @param course The course to generate PDF from.
+ * @param options The options to use when generating markdown.
+ */
+export const generatePdfFromCourse = async (course: ICourse, options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromCourse(course, options);
+
+    // generate pdf!
+    await generatePdf(markdown);
+}
+```
+
+## src/generatePdfFromLesson.ts
+
+```
+import { ILesson } from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generatePdf } from "./generatePdf";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
+
+/**
+ * Given a lesson, generates a PDF file based on various parameters.
+ * @param lesson The lesson to generate PDF from.
+ * @param options The options to use when generating markdown.
+ */
+export const generatePdfFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
+    // generate markdown
+    const markdown = generateMarkdownStringFromLesson(lesson, options);
+
+    // generate pdf!
+    await generatePdf(markdown);
+}
+```
+
+## src/generateZipFromCourse.ts
+
+```
+import { ICourse } from "@fullstackcraftllc/codevideo-types";
+import JSZip from 'jszip';
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownStringFromCourse } from "./core/generateMarkdownStringFromCourse";
+
+/**
+ * Given a course, generates a ZIP file containing markdown, HTML, and PDF exports.
+ * @param course The course to generate ZIP from.
+ * @param options The options to use when generating content.
+ */
+export const generateZipFromCourse = async (course: ICourse, options?: IGenerateMarkdownOptions) => {
+    const zip = new JSZip();
+
+    // Generate markdown content
+    const markdown = generateMarkdownStringFromCourse(course, options);
+
+    // Add markdown to zip
+    zip.file("course.md", markdown);
+
+    // Generate HTML content
+    const html = await import('./converters/convertToHtml').then(m =>
+        m.convertToHtml(markdown, { title: course.name })
+    );
+    zip.file("course.html", html);
+
+    // Create the zip file
+    const blob = await zip.generateAsync({ type: "blob" });
+
+    // Trigger download
+    const url = URL.createObjectURL(blob);
+    try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${course.name.toLowerCase().replace(/\s+/g, '-')}-export.zip`;
+        link.click();
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+};
+```
+
+## src/generateZipFromLesson.ts
+
+```
+import { ILesson } from "@fullstackcraftllc/codevideo-types";
+import JSZip from 'jszip';
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownStringFromLesson } from "./core/generateMarkdownStringFromLesson";
+
+/**
+ * Given a lesson, generates a ZIP file containing markdown, HTML, and PDF exports.
+ * @param lesson The lesson to generate ZIP from.
+ * @param options The options to use when generating content.
+ */
+export const generateZipFromLesson = async (lesson: ILesson, options?: IGenerateMarkdownOptions) => {
+    const zip = new JSZip();
+
+    // Generate markdown content
+    const markdown = generateMarkdownStringFromLesson(lesson, options);
+
+    // Add markdown to zip
+    zip.file("lesson.md", markdown);
+
+    // Generate HTML content
+    const html = await import('./converters/convertToHtml').then(m =>
+        m.convertToHtml(markdown, { title: lesson.name })
+    );
+    zip.file("lesson.html", html);
+
+    // Create the zip file
+    const blob = await zip.generateAsync({ type: "blob" });
+
+    // Trigger download
+    const url = URL.createObjectURL(blob);
+    try {
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${lesson.name.toLowerCase().replace(/\s+/g, '-')}-export.zip`;
+        link.click();
+    } finally {
+        URL.revokeObjectURL(url);
+    }
+};
+```
+
+## src/exportProject.ts
+
+```
+import { Project, isCourse, isLesson, isValidActions, ExportType } from "@fullstackcraftllc/codevideo-types";
+import { generateHtmlFromActions } from "./generateHtmlFromActions";
+import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
+import { generatePdfFromActions } from "./generatePdfFromActions";
+import { generateZipFromActions } from "./generateZipFromActions";
+import { generateHtmlFromCourse } from "./generateHtmlFromCourse";
+import { generateHtmlFromLesson } from "./generateHtmlFromLesson";
+import { generatePdfFromCourse } from "./generatePdfFromCourse";
+import { generatePdfFromLesson } from "./generatePdfFromLesson";
+import { generateZipFromCourse } from "./generateZipFromCourse";
+import { generateZipFromLesson } from "./generateZipFromLesson";
+import { generateJsonFromCourse } from "./generateJsonFromCourse";
+import { generateJsonFromLesson } from "./generateJsonFromLesson";
+import { generateJsonFromActions } from "./generateJsonFromActions";
+import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
+import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
+
+/**
+ * A dynamic function that exports a project to a specific format.
+ * Can be called from a browser to generate exports in various formats.
+ * @param project The project to export (can be a course, lesson, or actions)
+ * @param exportType The desired export format ('markdown', 'html', 'pdf', 'zip', or 'json')
+ * @returns Promise<void>
+ */
+export const exportProject = async (project: Project, exportType: ExportType): Promise<void> => {
+    // all course exports
+    if (isCourse(project) && exportType === 'markdown') {
+        await generateMarkdownFromCourse(project);
+    }
+    if (isCourse(project) && exportType === 'html') {
+        await generateHtmlFromCourse(project);
+    }
+    if (isCourse(project) && exportType === 'pdf') {
+        await generatePdfFromCourse(project);
+    }
+    if (isCourse(project) && exportType === 'zip') {
+        await generateZipFromCourse(project);
+    }
+    if (isCourse(project) && exportType === 'json') {
+        await generateJsonFromCourse(project);
+    }
+
+    // all lesson exports
+    if (isLesson(project) && exportType === 'markdown') {
+        await generateMarkdownFromLesson(project);
+    }
+    if (isLesson(project) && exportType === 'html') {
+        await generateHtmlFromLesson(project);
+    }
+    if (isLesson(project) && exportType === 'pdf') {
+        await generatePdfFromLesson(project);
+    }
+    if (isLesson(project) && exportType === 'zip') {
+        await generateZipFromLesson(project);
+    }
+    if (isLesson(project) && exportType === 'json') {
+        await generateJsonFromLesson(project);
+    }
+
+    // all actions exports
+    if (isValidActions(project) && exportType === 'markdown') {
+        await generateMarkdownFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'html') {
+        await generateHtmlFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'pdf') {
+        await generatePdfFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'zip') {
+        await generateZipFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'json') {
+        await generateJsonFromActions(project);
+    }
+}
+```
+
+## src/generateMarkdownFromActions.ts
+
+```
+import {
+  IAction,
+} from "@fullstackcraftllc/codevideo-types";
+import { IGenerateMarkdownOptions } from "./interfaces/IGenerateMarkdownOptions";
+import { generateMarkdownStringFromActions } from "./core/generateMarkdownStringFromActions";
+import { generateMarkdown } from "./generateMarkdown";
+
+/**
+ * Given a list of actions, generates a markdown download.
+ * @param actions The list of actions to generate markdown from.
+ * @param options The options to use when generating markdown.
+ */
+export const generateMarkdownFromActions = async (actions: IAction[], options?: IGenerateMarkdownOptions) => {
+  // generate markdown string
+  const markdown = generateMarkdownStringFromActions(actions, options);
+
+  // trigger markdown download!
+  await generateMarkdown(markdown);
+}
+```
+
+## src/index.ts
+
+```
+// interfaces
+export { IFileEntry } from './interfaces/IFileEntry'
+export { IGenerateMarkdownOptions } from './interfaces/IGenerateMarkdownOptions'
+
+// functions
+
+// main dynamic function
+export { exportProject } from './exportProject';
+
+// markdown
+export { generateMarkdownFromCourse } from './generateMarkdownFromCourse';
+export { generateMarkdownFromLesson } from './generateMarkdownFromLesson';
+export { generateMarkdownFromActions } from './generateMarkdownFromActions';
+
+// html
+export { generateHtmlFromCourse } from './generateHtmlFromCourse';
+export { generateHtmlFromLesson } from './generateHtmlFromLesson';
+export { generateHtmlFromActions } from './generateHtmlFromActions';
+
+// pdf
+export { generatePdfFromCourse } from './generatePdfFromCourse';
+export { generatePdfFromLesson } from './generatePdfFromLesson';
+export { generatePdfFromActions } from './generatePdfFromActions';
+
+// zip
+export { generateZipFromCourse } from './generateZipFromCourse';
+export { generateZipFromLesson } from './generateZipFromLesson';
+export { generateZipFromActions } from './generateZipFromActions';
+
+// json
+export { generateJsonFromCourse } from './generateJsonFromCourse';
+export { generateJsonFromLesson } from './generateJsonFromLesson';
+export { generateJsonFromActions } from './generateJsonFromActions';
+
+// helper generators
+export { generateHtml } from './generateHtml';
+export { generatePdf } from './generatePdf';
+```
+
+## README.md
+
+```
+# @fullstackcraftllc/codevideo-doc-gen
+
+![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-doc-gen)
+
+`codevideo-doc-gen` includes a series of browser-compatible TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
+
+This library heavily relies on the types from [@fullstackcraftllc/codevideo-types](https://github.com/codevideo/codevideo-types)
+
+## Installation
+
+```shell
+npm install @fullstackcraftllc/codevideo-doc-gen
+```
+
+Install peer dependencies:
+
+```shell
+npm install highlight.js marked marked-highlight
+```
+These dependencies are required for:
+- `marked`: Markdown parsing
+- `marked-highlight`: Markdown code block highlighting
+- `highlight.js`: Code syntax highlighting (used with `marked-highlight`)
+- `jszip`: For making .zip exports
+
+
+## Usage
+
+Generate markdown from just an array of `IAction`s:
+
+```typescript
+import { generateMarkdownFromActions } from '@fullstackcraftllc/codevideo-doc-gen';
+import { IAction } from '@fullstackcraftllc/codevideo-types';
+
+const actions: Array<IAction> = [
+  {
+    "name": "author-speak-before",
+    "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+  },
+  {
+    "name": "editor-type",
+    "value": "console.log('Hello World!');"
+  },
+  {
+    "name": "author-speak-before",
+    "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+  }
+]
+
+const markdown = generateMarkdownFromActions(actions);
+console.log(markdown);
+// Output:
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
+```
+
+Generate markdown from an `ILesson`:
+
+```typescript
+import { generateMarkdownFromLesson } from '@fullstackcraft/codevideo-doc-gen';
+import { ILesson } from '@fullstackcraft/codevideo-types';
+
+const lesson: ILesson = {
+  "title": "Hello World",
+  "description": "In this lesson, we're going to do a simple hello world example.",
+  "actions": [
+    {
+      "name": "author-speak-before",
+      "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+    },
+    {
+      "name": "editor-type",
+      "value": "console.log('Hello World!');"
+    },
+    {
+      "name": "author-speak-before",
+      "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+    }
+  ]
+}
+
+const markdown = generateMarkdownFromLesson(lesson);
+console.log(markdown);
+// Output:
+// # Hello World
+//
+// In this lesson, we're going to do a simple hello world example.
+//
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
+```
+
+Generate markdown from an `ICourse`, which includes one or more `ILesson`s:
+
+```typescript
+import { generateMarkdownFromCourse } from '@fullstackcraft/codevideo-doc-gen';
+import { ICourse } from '@fullstackcraft/codevideo-types';
+
+const course: ICourse = {
+  "title": "Hello World Course",
+  "description": "This course has just one lesson, which is building a hello world example.",
+  "lessons": [
+    {
+      "title": "Hello World",
+      "description": "In this lesson, we're going to do a simple hello world example.",
+      "actions": [
+        {
+          "name": "author-speak-before",
+          "value": "To showcase how codevideo works, we're just going to do a super basic hello world example here in src."
+        },
+        {
+          "name": "editor-type",
+          "value": "console.log('Hello World!');"
+        },
+        {
+          "name": "author-speak-before",
+          "value": "Nice, that looks pretty good! Pretty cool tool, right?!"
+        }
+      ]
+    }
+  ]
+}
+
+const markdown = generateMarkdownFromCourse(course);
+console.log(markdown);
+// Output:
+// # Hello World Course
+//
+// This course has just one lesson, which is building a hello world example.
+//
+// ## Hello World
+//
+// In this lesson, we're going to do a simple hello world example.
+//
+// To showcase how codevideo works, we're just going to do a super basic hello world example here in src.
+//
+// ```javascript
+// console.log('Hello World!');
+// ```
+//
+// Nice, that looks pretty good! Pretty cool tool, right?!
+```
+
+## Why?
+
+Imagine you've defined all your steps of an awesome software course in a JSON file. You want to render this JSON file into a video, as a markdown blog post, or a sellable PDF. This is exactly what the CodeVideo library does. It takes in a JSON file and renders it into a video, markdown, or PDF.
+
+See more at [codevideo.io](https://codevideo.io)
+```
+
+## rollup.config.js
+
+```
+import typescript from 'rollup-plugin-typescript2';
+import dts from 'rollup-plugin-dts';
+import postcss from 'rollup-plugin-postcss';
+
+// externals
+const external = [
+  "@fullstackcraftllc/codevideo-types",
+  "@fullstackcraftllc/codevideo-virtual-ide",
+  "marked",
+  "marked-highlight",
+  "highlight.js",
+  "jszip"
+];
+
+export default [
+  // standard package
+  {
+    input: "src/index.ts",
+    output: {
+      file: "dist/index.js",
+      format: "es",
+    },
+    plugins: [
+      postcss({
+        extract: false,
+        modules: false,
+        inject: false,
+        minimize: true
+      }),
+      typescript(),
+    ],
+    external,
+  },
+  // type declarations
+  {
+    input: "src/index.ts",
+    output: [
+      {
+        file: "dist/index.d.ts",
+        format: "es",
+      },
+    ],
+    plugins: [
+      dts(),
+    ],
+    external,
+  },
+];
+```
+
+## package.json
+
+```
+{
+  "name": "@fullstackcraftllc/codevideo-doc-gen",
+  "version": "0.0.12",
+  "description": "Generates various markdown, PDF, or HTML downloads for professional quality educational tutorials, walkthroughs, and blog posts.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rollup -c ./rollup.config.js",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "example": "tsc && node ./dist/example.js"
+  },
+  "keywords": [
+    "TypeScript",
+    "CodeVideo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codevideo/codevideo-doc-gen.git"
+  },
+  "issues": {
+    "url": "https://github.com/codevideo/codevideo-doc-gen/issues"
+  },
+  "author": "Chris Frewin",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/preset-typescript": "^7.23.3",
+    "@fullstackcraftllc/codevideo-types": "^2.0.25",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/prismjs": "^1.26.5",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jszip": "^3.10.1",
+    "rollup": "^4.13.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.8",
+    "highlight.js": "^11.11.1",
+    "marked": "^15.0.7",
+    "marked-highlight": "^2.2.1"
+  }
+}
+```

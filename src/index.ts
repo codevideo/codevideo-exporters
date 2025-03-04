@@ -32,7 +32,13 @@ export { generateJsonFromCourse } from './generateJsonFromCourse';
 export { generateJsonFromLesson } from './generateJsonFromLesson';
 export { generateJsonFromActions } from './generateJsonFromActions';
 
+// pptx
+export { generatePptxFromCourse } from './generatePptxFromCourse';
+export { generatePptxFromLesson } from './generatePptxFromLesson';
+export { generatePptxFromActions } from './generatePptxFromActions';
+
 // helper generators
 export { generateHtml } from './generateHtml';
 export { generatePdf } from './generatePdf';
+export { generatePptx } from './generatePptx';
 

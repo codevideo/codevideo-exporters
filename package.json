@@ -1,13 +1,13 @@
 {
   "name": "@fullstackcraftllc/codevideo-doc-gen",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Generates various markdown, PDF, or HTML downloads for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
     "type-check": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --testPathIgnorePatterns=\"__tests__/fixtures\"",
     "example": "tsc && node ./dist/example.js"
   },
   "keywords": [
@@ -27,7 +27,7 @@
     "@babel/core": "^7.24.0",
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-typescript": "^7.23.3",
-    "@fullstackcraftllc/codevideo-types": "^2.0.25",
+    "@fullstackcraftllc/codevideo-types": "^2.0.28",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "@types/prismjs": "^1.26.5",
@@ -41,9 +41,10 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.8",
+    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.10",
     "highlight.js": "^11.11.1",
     "marked": "^15.0.7",
-    "marked-highlight": "^2.2.1"
+    "marked-highlight": "^2.2.1",
+    "pptxgenjs": "^3.12.0"
   }
 }
