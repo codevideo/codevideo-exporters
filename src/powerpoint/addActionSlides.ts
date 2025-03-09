@@ -3,7 +3,7 @@ import pptxgen from 'pptxgenjs';
 import { createTextSlide } from './createTextSlide';
 import { createTerminalSlide } from './createTerminalSlide';
 import { createCodeSlide } from './createCodeSlide';
-import { IAction } from '@fullstackcraftllc/codevideo-types';
+import { IAction, isRepeatableAction } from '@fullstackcraftllc/codevideo-types';
 
 /**
  * Helper function to add slides for each action
@@ -27,11 +27,11 @@ export const addActionSlides = (pres: pptxgen, actions: IAction[]) => {
         authorSnapshot.authors[0].currentSpeechCaption : "";
       
       // Process each action type
-      if (action.name.startsWith("editor-")) {
+      if (action.name.startsWith("editor-") && !isRepeatableAction(action)) {
         createCodeSlide(pres, action, virtualIDE, caption);
       } else if (action.name.startsWith("author-speak-")) {
         createTextSlide(pres, action, actionCount, actions.length);
-      } else if (action.name.startsWith("terminal-")) {
+      } else if (action.name.startsWith("terminal-") && !isRepeatableAction(action)) {
         createTerminalSlide(pres, action, caption);
       }
     }

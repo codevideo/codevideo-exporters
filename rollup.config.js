@@ -9,7 +9,9 @@ const external = [
   "marked",
   "marked-highlight",
   "highlight.js",
-  "jszip"
+  "jszip",
+  "pptxgenjs",
+  "html-to-image"
 ];
 
 export default [

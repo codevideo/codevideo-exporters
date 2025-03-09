@@ -21,8 +21,9 @@ These dependencies are required for:
 - `marked`: Markdown parsing
 - `marked-highlight`: Markdown code block highlighting
 - `highlight.js`: Code syntax highlighting (used with `marked-highlight`)
-- `jszip`: For making .zip exports
-- `html-to-png`: For png exports
+- `jszip`: For making .zip exports of files, also for the pngs .zip export
+- `html-to-image`: For png exports
+- `pptxgenjs`: For pptx exports
 
 
 ## Usage
