@@ -1,4 +1,4 @@
-import htmlToImage from 'html-to-image';
+import { toPng } from 'html-to-image';
 
 /**
  * Converts a React DOM string of the CodeVideo IDE react component to a png; 
@@ -14,7 +14,7 @@ export const generatePng = async (reactDomRenderedString: string): Promise<strin
   document.body.appendChild(container);
   
   // Convert to image
-  const dataUrl = await htmlToImage.toPng(container)
+  const dataUrl = await toPng(container)
   
   // cleanup
   document.body.removeChild(container);
