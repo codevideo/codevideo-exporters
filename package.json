@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/codevideo-exporters",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Various exports in the CodeVideo ecosystem to markdown, PDF, or HTML for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
@@ -43,6 +43,7 @@
   "dependencies": {
     "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.10",
     "highlight.js": "^11.11.1",
+    "html-to-image": "^1.11.13",
     "marked": "^15.0.7",
     "marked-highlight": "^2.2.1",
     "pptxgenjs": "^3.12.0"

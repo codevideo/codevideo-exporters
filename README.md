@@ -15,13 +15,14 @@ npm install @fullstackcraftllc/codevideo-exporters
 Install peer dependencies:
 
 ```shell
-npm install highlight.js marked marked-highlight
+npm install highlight.js marked marked-highlight jszip html-to-png react-dom/server.browser
 ```
 These dependencies are required for:
 - `marked`: Markdown parsing
 - `marked-highlight`: Markdown code block highlighting
 - `highlight.js`: Code syntax highlighting (used with `marked-highlight`)
 - `jszip`: For making .zip exports
+- `html-to-png`: For png exports
 
 
 ## Usage

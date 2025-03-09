@@ -23,6 +23,7 @@ import { generateTsxFromActions } from "./generateTsxFromActions";
 import { generateJsxFromActions } from "./generateJsxFromActions";
 import { generateTsxFromCourse } from "./generateTsxFromCourse";
 import { generateJsxFromCourse } from "./generateJsxFromCourse";
+import { generatePngsFromActions } from "./generatePngsFromActions";
 
 /**
  * A dynamic function that exports a CodeVideo project to a specific format.

@@ -37,8 +37,23 @@ export { generatePptxFromCourse } from './generatePptxFromCourse';
 export { generatePptxFromLesson } from './generatePptxFromLesson';
 export { generatePptxFromActions } from './generatePptxFromActions';
 
+// tsx
+export { generateTsxFromCourse } from './generateTsxFromCourse';
+export { generateTsxFromLesson } from './generateTsxFromLesson';
+export { generateTsxFromActions } from './generateTsxFromActions';
+
+// jsx
+export { generateJsxFromCourse } from './generateJsxFromCourse';
+export { generateJsxFromLesson } from './generateJsxFromLesson';
+export { generateJsxFromActions } from './generateJsxFromActions';
+
+// pngs - to keep dependencies of CodeVideoIDE out of this package, we use a different signature (array of snapshot string)
+export { generatePngsFromActions } from './generatePngsFromActions';
+
 // helper generators
 export { generateHtml } from './generateHtml';
 export { generatePdf } from './generatePdf';
 export { generatePptx } from './generatePptx';
-
+export { generateZip } from './generateZip';
+export { generateJsx } from './generateJsx';
+export { generateTsx } from './generateTsx';
