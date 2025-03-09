@@ -1,15 +1,15 @@
-# @fullstackcraftllc/codevideo-doc-gen
+# @fullstackcraftllc/codevideo-exporters
 
-![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-doc-gen)
+![NPM Version](https://img.shields.io/npm/v/@fullstackcraftllc/codevideo-exporters)
 
-`codevideo-doc-gen` includes a series of browser-compatible TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
+`codevideo-exporters` includes a series of browser-compatible TypeScript functions that can export a step by step software course into markdown, pdf, or html. This library is part of the [CodeVideo](https://codevideo.io) project.
 
 This library heavily relies on the types from [@fullstackcraftllc/codevideo-types](https://github.com/codevideo/codevideo-types)
 
 ## Installation
 
 ```shell
-npm install @fullstackcraftllc/codevideo-doc-gen
+npm install @fullstackcraftllc/codevideo-exporters
 ```
 
 Install peer dependencies:
@@ -29,7 +29,7 @@ These dependencies are required for:
 Generate markdown from just an array of `IAction`s:
 
 ```typescript
-import { generateMarkdownFromActions } from '@fullstackcraftllc/codevideo-doc-gen';
+import { generateMarkdownFromActions } from '@fullstackcraftllc/codevideo-exporters';
 import { IAction } from '@fullstackcraftllc/codevideo-types';
 
 const actions: Array<IAction> = [
@@ -62,7 +62,7 @@ console.log(markdown);
 Generate markdown from an `ILesson`:
 
 ```typescript
-import { generateMarkdownFromLesson } from '@fullstackcraft/codevideo-doc-gen';
+import { generateMarkdownFromLesson } from '@fullstackcraft/codevideo-exporters';
 import { ILesson } from '@fullstackcraft/codevideo-types';
 
 const lesson: ILesson = {
@@ -103,7 +103,7 @@ console.log(markdown);
 Generate markdown from an `ICourse`, which includes one or more `ILesson`s:
 
 ```typescript
-import { generateMarkdownFromCourse } from '@fullstackcraft/codevideo-doc-gen';
+import { generateMarkdownFromCourse } from '@fullstackcraft/codevideo-exporters';
 import { ICourse } from '@fullstackcraft/codevideo-types';
 
 const course: ICourse = {

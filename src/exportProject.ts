@@ -17,12 +17,18 @@ import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
 import { generatePptxFromCourse } from "./generatePptxFromCourse";
 import { generatePptxFromActions } from "./generatePptxFromActions";
 import { generatePptxFromLesson } from "./generatePptxFromLesson";
+import { generateTsxFromLesson } from "./generateTsxFromLesson";
+import { generateJsxFromLesson } from "./generateJsxFromLesson";
+import { generateTsxFromActions } from "./generateTsxFromActions";
+import { generateJsxFromActions } from "./generateJsxFromActions";
+import { generateTsxFromCourse } from "./generateTsxFromCourse";
+import { generateJsxFromCourse } from "./generateJsxFromCourse";
 
 /**
- * A dynamic function that exports a project to a specific format.
+ * A dynamic function that exports a CodeVideo project to a specific format.
  * Can be called from a browser to generate exports in various formats.
- * @param project The project to export (can be a course, lesson, or actions)
- * @param exportType The desired export format ('markdown', 'html', 'pdf', 'zip', or 'json')
+ * @param project The project (type Project) to export (can be a course, lesson, or actions)
+ * @param exportType The desired export format (type ExportFormat)
  * @returns Promise<void>
  */
 export const exportProject = async (project: Project, exportType: ExportType): Promise<void> => {
@@ -45,6 +51,12 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     if (isCourse(project) && exportType === 'pptx') {
         await generatePptxFromCourse(project);
     }
+    if (isCourse(project) && exportType === 'tsx') {
+        await generateTsxFromCourse(project);
+    }
+    if (isCourse(project) && exportType === 'jsx') {
+        await generateJsxFromCourse(project);
+    }
 
     // all lesson exports
     if (isLesson(project) && exportType === 'markdown') {
@@ -65,6 +77,12 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     if (isLesson(project) && exportType === 'pptx') {
         await generatePptxFromLesson(project);
     }
+    if (isLesson(project) && exportType === 'tsx') {
+        await generateTsxFromLesson(project);
+    }
+    if (isLesson(project) && exportType === 'jsx') {
+        await generateJsxFromLesson(project);
+    }
 
     // all actions exports
     if (isValidActions(project) && exportType === 'markdown') {
@@ -84,5 +102,11 @@ export const exportProject = async (project: Project, exportType: ExportType): P
     }
     if (isValidActions(project) && exportType === 'pptx') {
         await generatePptxFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'tsx') {
+        await generateTsxFromActions(project);
+    }
+    if (isValidActions(project) && exportType === 'jsx') {
+        await generateJsxFromActions(project);
     }
 }
