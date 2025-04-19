@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/codevideo-exporters",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "description": "Various exports in the CodeVideo ecosystem to markdown, PDF, or HTML for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
@@ -27,7 +27,7 @@
     "@babel/core": "^7.24.0",
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-typescript": "^7.23.3",
-    "@fullstackcraftllc/codevideo-types": "^2.0.33",
+    "@fullstackcraftllc/codevideo-types": "^2.0.35",
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "@types/prismjs": "^1.26.5",
@@ -41,7 +41,7 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
-    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.10",
+    "@fullstackcraftllc/codevideo-virtual-ide": "^1.0.13",
     "highlight.js": "^11.11.1",
     "html-to-image": "^1.11.13",
     "marked": "^15.0.7",

@@ -1,5 +1,4 @@
 // interfaces
-export { IFileEntry } from './interfaces/IFileEntry'
 export { IGenerateMarkdownOptions } from './interfaces/IGenerateMarkdownOptions'
 
 // functions
@@ -8,52 +7,56 @@ export { IGenerateMarkdownOptions } from './interfaces/IGenerateMarkdownOptions'
 export { exportProject } from './exportProject';
 
 // markdown
-export { generateMarkdownFromCourse } from './generateMarkdownFromCourse';
-export { generateMarkdownFromLesson } from './generateMarkdownFromLesson';
-export { generateMarkdownFromActions } from './generateMarkdownFromActions';
+export { generateMarkdownFromCourse } from './generators/markdown/generateMarkdownFromCourse';
+export { generateMarkdownFromLesson } from './generators/markdown/generateMarkdownFromLesson';
+export { generateMarkdownFromActions } from './generators/markdown/generateMarkdownFromActions';
+export { generateMarkdownStringFromActions } from './core/generateMarkdownStringFromActions';
 
 // html
-export { generateHtmlFromCourse } from './generateHtmlFromCourse';
-export { generateHtmlFromLesson } from './generateHtmlFromLesson';
-export { generateHtmlFromActions } from './generateHtmlFromActions';
+export { generateHtmlFromCourse } from './generators/html/generateHtmlFromCourse';
+export { generateHtmlFromLesson } from './generators/html/generateHtmlFromLesson';
+export { generateHtmlFromActions } from './generators/html/generateHtmlFromActions';
 
 // pdf
-export { generatePdfFromCourse } from './generatePdfFromCourse';
-export { generatePdfFromLesson } from './generatePdfFromLesson';
-export { generatePdfFromActions } from './generatePdfFromActions';
+export { generatePdfFromCourse } from './generators/pdf/generatePdfFromCourse';
+export { generatePdfFromLesson } from './generators/pdf/generatePdfFromLesson';
+export { generatePdfFromActions } from './generators/pdf/generatePdfFromActions';
 
 // zip
-export { generateZipFromCourse } from './generateZipFromCourse';
-export { generateZipFromLesson } from './generateZipFromLesson';
-export { generateZipFromActions } from './generateZipFromActions';
+export { generateZipFromCourse } from './generators/zip/generateZipFromCourse';
+export { generateZipFromLesson } from './generators/zip/generateZipFromLesson';
+export { generateZipFromActions } from './generators/zip/generateZipFromActions';
 
 // json
-export { generateJsonFromCourse } from './generateJsonFromCourse';
-export { generateJsonFromLesson } from './generateJsonFromLesson';
-export { generateJsonFromActions } from './generateJsonFromActions';
+export { generateJsonFromCourse } from './generators/json/generateJsonFromCourse';
+export { generateJsonFromLesson } from './generators/json/generateJsonFromLesson';
+export { generateJsonFromActions } from './generators/json/generateJsonFromActions';
 
 // pptx
-export { generatePptxFromCourse } from './generatePptxFromCourse';
-export { generatePptxFromLesson } from './generatePptxFromLesson';
-export { generatePptxFromActions } from './generatePptxFromActions';
+export { generatePptxFromCourse } from './generators/pptx/generatePptxFromCourse';
+export { generatePptxFromLesson } from './generators/pptx/generatePptxFromLesson';
+export { generatePptxFromActions } from './generators/pptx/generatePptxFromActions';
 
 // tsx
-export { generateTsxFromCourse } from './generateTsxFromCourse';
-export { generateTsxFromLesson } from './generateTsxFromLesson';
-export { generateTsxFromActions } from './generateTsxFromActions';
+export { generateTsxFromCourse } from './generators/tsx/generateTsxFromCourse';
+export { generateTsxFromLesson } from './generators/tsx/generateTsxFromLesson';
+export { generateTsxFromActions } from './generators/tsx/generateTsxFromActions';
+export { generateTsxStringFromActions } from './core/generateTsxStringFromActions';
 
 // jsx
-export { generateJsxFromCourse } from './generateJsxFromCourse';
-export { generateJsxFromLesson } from './generateJsxFromLesson';
-export { generateJsxFromActions } from './generateJsxFromActions';
+export { generateJsxFromCourse } from './generators/jsx/generateJsxFromCourse';
+export { generateJsxFromLesson } from './generators/jsx/generateJsxFromLesson';
+export { generateJsxFromActions } from './generators/jsx/generateJsxFromActions';
+export { generateJsxStringFromActions } from './core/generateJsxStringFromActions';
 
 // pngs - to keep dependencies of CodeVideoIDE out of this package, we use a different signature (array of snapshot string)
-export { generatePngsFromActions } from './generatePngsFromActions';
+export { generatePngsFromActions } from './generators/png/generatePngsFromActions';
 
-// helper generators
-export { generateHtml } from './generateHtml';
-export { generatePdf } from './generatePdf';
-export { generatePptx } from './generatePptx';
-export { generateZip } from './generateZip';
-export { generateJsx } from './generateJsx';
-export { generateTsx } from './generateTsx';
+// helper generators to trigger browser downloads
+export { generateMarkdown } from './generators/markdown/generateMarkdown';
+export { generateHtml } from './generators/html/generateHtml';
+export { generatePdf } from './generators/pdf/generatePdf';
+export { generatePptx } from './generators/pptx/generatePptx';
+export { generateZip } from './generators/zip/generateZip';
+export { generateJsx } from './generators/jsx/generateJsx';
+export { generateTsx } from './generators/tsx/generateTsx';

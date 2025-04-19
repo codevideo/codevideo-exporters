@@ -1,29 +1,29 @@
 import { Project, isCourse, isLesson, isValidActions, ExportType } from "@fullstackcraftllc/codevideo-types";
-import { generateHtmlFromActions } from "./generateHtmlFromActions";
-import { generateMarkdownFromActions } from "./generateMarkdownFromActions";
-import { generatePdfFromActions } from "./generatePdfFromActions";
-import { generateZipFromActions } from "./generateZipFromActions";
-import { generateHtmlFromCourse } from "./generateHtmlFromCourse";
-import { generateHtmlFromLesson } from "./generateHtmlFromLesson";
-import { generatePdfFromCourse } from "./generatePdfFromCourse";
-import { generatePdfFromLesson } from "./generatePdfFromLesson";
-import { generateZipFromCourse } from "./generateZipFromCourse";
-import { generateZipFromLesson } from "./generateZipFromLesson";
-import { generateJsonFromCourse } from "./generateJsonFromCourse";
-import { generateJsonFromLesson } from "./generateJsonFromLesson";
-import { generateJsonFromActions } from "./generateJsonFromActions";
-import { generateMarkdownFromCourse } from "./generateMarkdownFromCourse";
-import { generateMarkdownFromLesson } from "./generateMarkdownFromLesson";
-import { generatePptxFromCourse } from "./generatePptxFromCourse";
-import { generatePptxFromActions } from "./generatePptxFromActions";
-import { generatePptxFromLesson } from "./generatePptxFromLesson";
-import { generateTsxFromLesson } from "./generateTsxFromLesson";
-import { generateJsxFromLesson } from "./generateJsxFromLesson";
-import { generateTsxFromActions } from "./generateTsxFromActions";
-import { generateJsxFromActions } from "./generateJsxFromActions";
-import { generateTsxFromCourse } from "./generateTsxFromCourse";
-import { generateJsxFromCourse } from "./generateJsxFromCourse";
-import { generatePngsFromActions } from "./generatePngsFromActions";
+import { generateHtmlFromActions } from "./generators/html/generateHtmlFromActions";
+import { generateHtmlFromCourse } from "./generators/html/generateHtmlFromCourse";
+import { generateHtmlFromLesson } from "./generators/html/generateHtmlFromLesson";
+import { generateJsonFromActions } from "./generators/json/generateJsonFromActions";
+import { generateJsonFromCourse } from "./generators/json/generateJsonFromCourse";
+import { generateJsonFromLesson } from "./generators/json/generateJsonFromLesson";
+import { generateJsxFromActions } from "./generators/jsx/generateJsxFromActions";
+import { generateJsxFromCourse } from "./generators/jsx/generateJsxFromCourse";
+import { generateJsxFromLesson } from "./generators/jsx/generateJsxFromLesson";
+import { generateMarkdownFromActions } from "./generators/markdown/generateMarkdownFromActions";
+import { generateMarkdownFromCourse } from "./generators/markdown/generateMarkdownFromCourse";
+import { generateMarkdownFromLesson } from "./generators/markdown/generateMarkdownFromLesson";
+import { generatePdfFromActions } from "./generators/pdf/generatePdfFromActions";
+import { generatePdfFromCourse } from "./generators/pdf/generatePdfFromCourse";
+import { generatePdfFromLesson } from "./generators/pdf/generatePdfFromLesson";
+import { generatePptxFromActions } from "./generators/pptx/generatePptxFromActions";
+import { generatePptxFromCourse } from "./generators/pptx/generatePptxFromCourse";
+import { generatePptxFromLesson } from "./generators/pptx/generatePptxFromLesson";
+import { generateTsxFromActions } from "./generators/tsx/generateTsxFromActions";
+import { generateTsxFromCourse } from "./generators/tsx/generateTsxFromCourse";
+import { generateTsxFromLesson } from "./generators/tsx/generateTsxFromLesson";
+import { generateZipFromActions } from "./generators/zip/generateZipFromActions";
+import { generateZipFromCourse } from "./generators/zip/generateZipFromCourse";
+import { generateZipFromLesson } from "./generators/zip/generateZipFromLesson";
+
 
 /**
  * A dynamic function that exports a CodeVideo project to a specific format.
