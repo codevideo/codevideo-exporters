@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { IAction } from "@fullstackcraftllc/codevideo-types";
-import { generatePptxFromActions } from "../../../src/generatePptxFromActions";
+import { generatePptxFromActions } from "../../../src/generators/pptx/generatePptxFromActions";
 import { advancedRustExampleActions } from "../../fixtures/rustAdvancedExample";
 
 describe("generateMarkdown", () => {

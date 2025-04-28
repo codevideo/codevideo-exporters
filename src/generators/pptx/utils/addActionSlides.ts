@@ -11,29 +11,32 @@ import { IAction, isRepeatableAction } from '@fullstackcraftllc/codevideo-types'
  * @param actions The list of actions to create slides for
  */
 export const addActionSlides = (pres: pptxgen, actions: IAction[]) => {
-    // Initialize virtual IDE to track actions and get captions
-    const virtualIDE = new VirtualIDE();
-    
-    // Each action becomes a single slide
-    let actionCount = 0;
-    for (const action of actions) {
-      // Apply the action to the virtualIDE
-      virtualIDE.applyAction(action);
-      actionCount++;
-      
-      // Get author caption if available
-      const authorSnapshot = virtualIDE.getAuthorSnapshot();
-      const caption = authorSnapshot.authors.length > 0 ? 
-        authorSnapshot.authors[0].currentSpeechCaption : "";
-      
-      // Process each action type
-      if (action.name.startsWith("editor-") && !isRepeatableAction(action)) {
-        createCodeSlide(pres, action, virtualIDE, caption);
-      } else if (action.name.startsWith("author-speak-")) {
-        createTextSlide(pres, action, actionCount, actions.length);
-      } else if (action.name.startsWith("terminal-") && !isRepeatableAction(action)) {
+  // Initialize virtual IDE to track actions and get captions
+  const virtualIDE = new VirtualIDE();
+
+  // Each action becomes a single slide
+  let actionCount = 0;
+  for (const action of actions) {
+    // Apply the action to the virtualIDE
+    virtualIDE.applyAction(action);
+    actionCount++;
+
+    // Get author caption if available
+    const authorSnapshot = virtualIDE.getAuthorSnapshot();
+    const caption = authorSnapshot.authors.length > 0 ?
+      authorSnapshot.authors[0].currentSpeechCaption : "";
+
+    // Process each action type
+    if (action.name.startsWith("editor-") && !isRepeatableAction(action)) {
+      createCodeSlide(pres, action, virtualIDE, caption);
+    } else if (action.name.startsWith("author-speak-")) {
+      createTextSlide(pres, action, actionCount, actions.length);
+    } else if (action.name.startsWith("terminal-")) {
+      // Only create slides for terminal-type and terminal-set-output actions
+      // Skip actions like terminal-open and terminal-enter which typically have a value of "1"
+      if (action.name === 'terminal-type' || action.name === 'terminal-set-output') {
         createTerminalSlide(pres, action, caption);
       }
     }
-  };
-  
+  }
+};

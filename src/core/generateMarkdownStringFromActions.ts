@@ -69,7 +69,11 @@ export const generateMarkdownStringFromActions = (actions: IAction[], options?: 
                 markdown += '```' + codeBlockName + '\n' + editorContent + '\n```\n\n';
                 break;
             case action.name.startsWith('terminal-'):
-                markdown += '```shell\n' + action.value + '\n```\n\n';
+                // Only show terminal-type and terminal-set-output actions
+                // Skip actions like terminal-open and terminal-enter which typically have a value of "1"
+                if (action.name === 'terminal-type' || action.name === 'terminal-set-output') {
+                    markdown += '```shell\n' + action.value + '\n```\n\n';
+                }
                 break;
         }
 

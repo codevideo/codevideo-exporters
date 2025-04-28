@@ -52,6 +52,13 @@ export { generateJsxStringFromActions } from './core/generateJsxStringFromAction
 // pngs - to keep dependencies of CodeVideoIDE out of this package, we use a different signature (array of snapshot string)
 export { generatePngsFromActions } from './generators/png/generatePngsFromActions';
 
+// Component-specific PNG exporters - for example a png of the file explorer, editor, terminal, etc.
+export { exportComponentPng } from './generators/png/exportComponentPng';
+export { exportFileExplorerPng } from './generators/png/exportComponentPng';
+export { exportEditorPng } from './generators/png/exportComponentPng';
+export { exportTerminalPng } from './generators/png/exportComponentPng';
+export { exportEditorAreaPng } from './generators/png/exportComponentPng';
+
 // helper generators to trigger browser downloads
 export { generateMarkdown } from './generators/markdown/generateMarkdown';
 export { generateHtml } from './generators/html/generateHtml';
