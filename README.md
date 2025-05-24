@@ -6,6 +6,14 @@
 
 This library heavily relies on the types from [@fullstackcraftllc/codevideo-types](https://github.com/codevideo/codevideo-types)
 
+## Supported Export Formats
+- **Markdown**: Export lessons and courses as markdown files, which can be used for blog posts or documentation.
+- **PDF**: Export lessons and courses as PDF files, which can be used for printable documentation or e-books.
+- **HTML**: Export lessons and courses as HTML files, which can be used for web pages or online documentation.
+- **PPTX**: Export lessons and courses as PowerPoint presentations, which can be used for slideshows or presentations.
+- **PNG**: Export lessons and courses as PNG images, which can be used for screenshots or image-based documentation.
+- **ZIP**: Export the source code of all files and folders in a lesson or course as a ZIP file, which can be used for downloadable resources.
+
 ## Installation
 
 ```shell
@@ -26,7 +34,7 @@ These dependencies are required for:
 - `pptxgenjs`: For pptx exports
 
 
-## Usage
+## Usage Example - Blog Post (Markdown Format)
 
 Generate markdown from just an array of `IAction`s:
 

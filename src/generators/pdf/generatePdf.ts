@@ -1,7 +1,7 @@
-import { convertToHtml } from "../../converters/convertToHtml";
+import { convertMarkdownToHtml } from "../../converters/convertMarkdownToHtml";
 
 export const generatePdf = async (markdown: string) => {
-  const fullHtml = await convertToHtml(markdown, {
+  const fullHtml = await convertMarkdownToHtml(markdown, {
     isPdf: true,
     title: 'CodeVideo PDF Export'
   });

@@ -53,15 +53,15 @@ const marked = new Marked(
   })
 );
 
-export const convertToHtml = async (
-  content: string,
+export const convertMarkdownToHtml = async (
+  markdownContent: string,
   options: Partial<HtmlGeneratorOptions> = {}
 ) => {
   const mergedOptions = { ...defaultOptions, ...options };
   const { isPdf, title, additionalStyles } = mergedOptions;
 
-  console.log(content);
-  const html = await marked.parse(content);
+  console.log(markdownContent);
+  const html = await marked.parse(markdownContent);
   console.log(html)
   
   // TODO: make this configurable - needs to be lowercase filename 

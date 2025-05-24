@@ -1,7 +1,7 @@
-import { convertToHtml } from "../../converters/convertToHtml";
+import { convertMarkdownToHtml } from "../../converters/convertMarkdownToHtml";
 
 export const generateHtml = async (markdown: string) => {
-    const fullHtml = await convertToHtml(markdown, {
+    const fullHtml = await convertMarkdownToHtml(markdown, {
       title: 'CodeVideo HTML Export'
     });
   

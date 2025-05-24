@@ -1,6 +1,6 @@
 import { ICourse } from "@fullstackcraftllc/codevideo-types";
 import JSZip from 'jszip';
-import { convertToHtml } from "../../converters/convertToHtml";
+import { convertMarkdownToHtml } from "../../converters/convertMarkdownToHtml";
 import { generateMarkdownStringFromCourse } from "../../core/generateMarkdownStringFromCourse";
 import { IGenerateMarkdownOptions } from "../../interfaces/IGenerateMarkdownOptions";
 
@@ -19,7 +19,7 @@ export const generateZipFromCourse = async (course: ICourse, options?: IGenerate
     zip.file("course.md", markdown);
     
     // Generate HTML content
-    const html = convertToHtml(markdown, { title: course.name })
+    const html = convertMarkdownToHtml(markdown, { title: course.name })
     
     zip.file("course.html", html);
 

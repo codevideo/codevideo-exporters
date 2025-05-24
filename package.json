@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/codevideo-exporters",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Various exports in the CodeVideo ecosystem to markdown, PDF, or HTML for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",

@@ -16,6 +16,7 @@ export { generateMarkdownStringFromActions } from './core/generateMarkdownString
 export { generateHtmlFromCourse } from './generators/html/generateHtmlFromCourse';
 export { generateHtmlFromLesson } from './generators/html/generateHtmlFromLesson';
 export { generateHtmlFromActions } from './generators/html/generateHtmlFromActions';
+export { generateHtmlStringFromActions } from './core/generateHtmlStringFromActions';
 
 // pdf
 export { generatePdfFromCourse } from './generators/pdf/generatePdfFromCourse';

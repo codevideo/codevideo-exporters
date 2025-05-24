@@ -2,7 +2,7 @@ import { ILesson } from "@fullstackcraftllc/codevideo-types";
 import JSZip from 'jszip';
 import { generateMarkdownStringFromLesson } from "../../core/generateMarkdownStringFromLesson";
 import { IGenerateMarkdownOptions } from "../../interfaces/IGenerateMarkdownOptions";
-import { convertToHtml } from "../../converters/convertToHtml";
+import { convertMarkdownToHtml } from "../../converters/convertMarkdownToHtml";
 
 /**
  * Given a lesson, generates a ZIP file containing markdown, HTML, and PDF exports.
@@ -19,7 +19,7 @@ export const generateZipFromLesson = async (lesson: ILesson, options?: IGenerate
     zip.file("lesson.md", markdown);
     
     // Generate HTML content
-    const html = convertToHtml(markdown, { title: lesson.name })
+    const html = convertMarkdownToHtml(markdown, { title: lesson.name })
     zip.file("lesson.html", html);
 
     // Create the zip file
