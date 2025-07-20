@@ -10,7 +10,7 @@ import { getFileExtension } from "../utils/getFileExtension";
  * @param options 
  * @returns The generated markdown
  */
-export const generateMarkdownStringFromActions = (actions: IAction[], options?: IGenerateMarkdownOptions) => {
+export const generateMarkdownStringFromActions = (actions: IAction[], options: Partial<IGenerateMarkdownOptions> = {}) => {
     const { strictlyStepByStep } = options || {
         strictlyStepByStep: false
     };
@@ -62,8 +62,14 @@ export const generateMarkdownStringFromActions = (actions: IAction[], options?: 
                 }
 
                 const editorSnapshot = virtualIDE.getEditorSnapshot();
-                const editorContent = editorSnapshot.editors[0].content;
-                const editorFileExtension = editorSnapshot.editors[0].filename;
+                const currentEditor = editorSnapshot.editors.find(editor => editor.isActive)
+
+                if (!currentEditor) {
+                    markdown += '```text\n<Current active editor not found>\n```\n\n';
+                    break;
+                }
+                const editorContent = currentEditor.content;
+                const editorFileExtension = currentEditor.filename;
                 const fileExtension = getFileExtension(editorFileExtension);
                 const codeBlockName = getMarkdownCodeBlockNameFromFileExtension(fileExtension);
                 markdown += '```' + codeBlockName + '\n' + editorContent + '\n```\n\n';

@@ -17,6 +17,7 @@ export { generateHtmlFromCourse } from './generators/html/generateHtmlFromCourse
 export { generateHtmlFromLesson } from './generators/html/generateHtmlFromLesson';
 export { generateHtmlFromActions } from './generators/html/generateHtmlFromActions';
 export { generateHtmlStringFromActions } from './core/generateHtmlStringFromActions';
+export { generateHtmlStringFromLesson } from './core/generateHtmlStringFromLesson';
 
 // pdf
 export { generatePdfFromCourse } from './generators/pdf/generatePdfFromCourse';

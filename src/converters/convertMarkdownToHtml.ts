@@ -1,23 +1,133 @@
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js';
-import baseStyles from './styles/base.css';
-import screenStyles from './styles/screen.css';
-import printStyles from './styles/print.css';
 
-interface HtmlGeneratorOptions {
+const defaultBackgroundColor = '#f6f8fa';
+
+const baseStyles = `
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    line-height: 1.6;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+pre {
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 0.9em;
+}
+
+code {
+    font-family: 'SF Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    line-height: 1.25;
+}
+`;
+
+const screenStyles = `
+pre {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+}
+
+.diff-highlight {
+    background: #f6f8fa;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.diff-highlight .token.deleted {
+    background-color: #ffeef0;
+    color: #b31d28;
+}
+
+.diff-highlight .token.inserted {
+    background-color: #e6ffed;
+    color: #22863a;
+}
+
+.diff-highlight .token.diff {
+    color: #24292e;
+}
+`;
+
+const printStyles = `
+@media print {
+    body {
+      margin: 2.5cm;
+      font-size: 11pt;
+    }
+  
+    pre {
+      background: none !important;
+      border: 1px solid #ddd !important;
+      page-break-inside: avoid;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  
+    code {
+      color: #000 !important;
+    }
+  
+    .token.deleted {
+      background: none !important;
+      color: #b31d28 !important;
+      text-decoration: line-through;
+    }
+    
+    .token.inserted {
+      background: none !important;
+      color: #22863a !important;
+    }
+  
+    h1, h2 {
+      page-break-before: always;
+    }
+  
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+  
+    a[href]::after {
+      content: " (" attr(href) ")";
+    }
+  }
+`;
+
+export interface IHtmlGeneratorOptions {
   enableDiff?: boolean;
   isPdf?: boolean;
   title?: string;
   additionalStyles?: string;
+  highlightTheme?: string;
+  backgroundColor?: string;
+  forReactHtml?: boolean; // For React HTML export compatibility
 }
 
-const defaultOptions: HtmlGeneratorOptions = {
+const defaultOptions: IHtmlGeneratorOptions = {
   enableDiff: true,
   isPdf: false,
   title: 'CodeVideo',
-  additionalStyles: ''
+  additionalStyles: '',
+  highlightTheme: 'github',
+  backgroundColor: defaultBackgroundColor
 };
+
+
 
 // Initialize marked with modern syntax highlighting
 const marked = new Marked(
@@ -55,23 +165,26 @@ const marked = new Marked(
 
 export const convertMarkdownToHtml = async (
   markdownContent: string,
-  options: Partial<HtmlGeneratorOptions> = {}
+  options: Partial<IHtmlGeneratorOptions> = {}
 ) => {
   const mergedOptions = { ...defaultOptions, ...options };
-  const { isPdf, title, additionalStyles } = mergedOptions;
+  const { isPdf, title, additionalStyles, highlightTheme, backgroundColor } = mergedOptions;
 
-  console.log(markdownContent);
   const html = await marked.parse(markdownContent);
-  console.log(html)
-  
-  // TODO: make this configurable - needs to be lowercase filename 
-  const highlightTheme = 'github'; 
 
-  const styleContent = `
+  let styleContent = `
     ${baseStyles}
     ${isPdf ? printStyles : screenStyles}
     ${additionalStyles}
   `;
+
+  // if a background color which is NOT the default is provided, replace all occurrences of the default background color with the new one
+  if (backgroundColor && backgroundColor !== defaultBackgroundColor) {
+    styleContent = styleContent.replace(
+      new RegExp(defaultBackgroundColor, 'g'),
+      backgroundColor
+    );
+  }
 
   return `
   <!DOCTYPE html>
