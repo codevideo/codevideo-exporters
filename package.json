@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/codevideo-exporters",
-  "version": "0.0.13",
+  "version": "0.0.15",
   "description": "Various exports in the CodeVideo ecosystem to markdown, PDF, or HTML for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
@@ -39,6 +39,7 @@
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-typescript2": "^0.36.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.4.2"
   },
   "dependencies": {

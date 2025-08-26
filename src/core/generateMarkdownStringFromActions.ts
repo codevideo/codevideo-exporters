@@ -39,7 +39,12 @@ export const generateMarkdownStringFromActions = (actions: IAction[], options: P
 
         // otherwise, 
         switch (true) {
+            case action.name === 'slide-display':
+                // take verbatim the slide content (is anyway markdown)
+                markdown += `${action.value}\n\n`;
+                break;
             case action.name.startsWith('author-'):
+                // add the speech to the markdown as standard text
                 markdown += `${action.value}\n\n`;
                 break;
             case action.name.startsWith('file-explorer-'):

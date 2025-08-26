@@ -33,6 +33,58 @@ describe("generateMarkdown", () => {
 
     });
   });
+
+  describe("slide-display actions", () => {
+    it("should handle markdown slide-display actions", () => {
+      const slideActions: Array<IAction> = [
+        {
+          "name": "slide-display",
+          "value": `# Welcome to CodeVideo
+
+## Introduction
+
+This is a **sample presentation** with various markdown features:
+
+### Code Example
+
+\`\`\`javascript
+function greet(name) {
+  console.log('Hello, ' + name + '!');
+}
+
+greet('CodeVideo');
+\`\`\`
+
+### Key Features
+
+- Easy to use
+- Supports multiple formats
+- Great for education
+- *Completely awesome*
+
+> This is a quote about how amazing CodeVideo is for creating educational content.
+
+## Getting Started
+
+1. Install the package
+2. Create your actions
+3. Export to PowerPoint
+4. Share your content!
+
+Thank you for using CodeVideo!`
+        },
+        {
+          "name": "author-speak-before",
+          "value": "This slide demonstrates how markdown content can be converted to PowerPoint slides."
+        }
+      ];
+
+      // This should execute without throwing errors
+      const result = generatePptxFromActions(slideActions);
+      expect(result).toBeDefined();
+    });
+  });
+
   it("should produce a powerpoint for a really big action example", () => {
     generatePptxFromActions(advancedRustExampleActions);
   });
