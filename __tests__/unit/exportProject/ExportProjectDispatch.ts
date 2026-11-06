@@ -25,7 +25,7 @@ import { generateTsxFromLesson } from "../../../src/generators/tsx/generateTsxFr
 import { generateZipFromActions } from "../../../src/generators/zip/generateZipFromActions";
 import { generateZipFromCourse } from "../../../src/generators/zip/generateZipFromCourse";
 import { generateZipFromLesson } from "../../../src/generators/zip/generateZipFromLesson";
-import { helloWorldActions, helloWorldCourse, helloWorldLesson } from "../../fixtures/exportProjectFixtures";
+import { halfEditedActions, halfEditedCourse, halfEditedLesson, helloWorldActions, helloWorldCourse, helloWorldLesson } from "../../fixtures/exportProjectFixtures";
 
 jest.mock("../../../src/generators/html/generateHtmlFromActions");
 jest.mock("../../../src/generators/html/generateHtmlFromCourse");
@@ -127,11 +127,30 @@ describe("exportProject", () => {
   });
 
   it.each([
-    ["a lesson with an invalid action", { ...helloWorldLesson, actions: [{ name: "author-speak-before", value: "" }] }],
-    ["an actions array with an unknown action", [{ name: "not-an-action", value: "hello" }]],
-    ["an object that is no project at all", { name: "not a project" }]
+    ["course", halfEditedCourse],
+    ["lesson", halfEditedLesson],
+    ["actions", halfEditedActions]
+  ] as const)("still exports a %s with invalid actions through its own generator", async (projectType, project) => {
+    const expected = generators[projectType].json;
+
+    await expect(exportProject(project, "json")).resolves.toBeUndefined();
+
+    expect(expected).toHaveBeenCalledTimes(1);
+    expect(expected).toHaveBeenCalledWith(project);
+    for (const generator of allGenerators) {
+      if (generator !== expected) {
+        expect(generator).not.toHaveBeenCalled();
+      }
+    }
+  });
+
+  it.each([
+    ["an object that is no project at all", { name: "not a project" }],
+    ["a course whose lesson has no actions array", { ...helloWorldCourse, lessons: [{ id: "x", name: "x", description: "x" }] }],
+    ["null", null],
+    ["a string", "hello"]
   ])("rejects %s without running any generator", async (_, project) => {
-    await expect(exportProject(project as Project, "json")).rejects.toThrow("not a valid course, lesson, or actions array");
+    await expect(exportProject(project as unknown as Project, "json")).rejects.toThrow("not a course, lesson, or actions array");
     expectNoGeneratorCalls();
   });
 

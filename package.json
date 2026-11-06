@@ -1,11 +1,15 @@
 {
   "name": "@fullstackcraftllc/codevideo-exporters",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Various exports in the CodeVideo ecosystem to markdown, PDF, or HTML for professional quality educational tutorials, walkthroughs, and blog posts.",
   "type": "module",
   "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rollup -c ./rollup.config.js",
+    "prepublishOnly": "npm run build",
     "type-check": "tsc --noEmit",
     "test": "jest --testPathIgnorePatterns=\"__tests__/fixtures\"",
     "example": "tsc && node ./dist/example.js"

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ExportType, Project } from "@fullstackcraftllc/codevideo-types";
 import { exportProject } from "../../../src/exportProject";
-import { helloWorldActions, helloWorldCourse, helloWorldLesson } from "../../fixtures/exportProjectFixtures";
+import { halfEditedActions, halfEditedCourse, halfEditedLesson, helloWorldActions, helloWorldCourse, helloWorldLesson } from "../../fixtures/exportProjectFixtures";
 
 // Just enough of a browser for the real generators: every <a download> click counts as a
 // downloaded file, and every print() of a window.open() popup counts as a PDF.
@@ -32,10 +32,14 @@ const openPrintWindow = () => {
   return printWindow;
 };
 
+// half-edited projects (an empty value and an unknown action name) must export as-is too
 const projects: Array<[string, Project]> = [
   ["course", helloWorldCourse],
   ["lesson", helloWorldLesson],
-  ["actions", helloWorldActions]
+  ["actions", helloWorldActions],
+  ["half-edited course", halfEditedCourse],
+  ["half-edited lesson", halfEditedLesson],
+  ["half-edited actions", halfEditedActions]
 ];
 
 const downloadFormats: Array<ExportType> = ["markdown", "html", "zip", "json", "pptx", "tsx", "jsx"];

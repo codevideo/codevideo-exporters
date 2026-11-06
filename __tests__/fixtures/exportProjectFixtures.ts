@@ -39,3 +39,16 @@ export const helloWorldCourse: ICourse = {
   primaryLanguage: "javascript",
   lessons: [helloWorldLesson]
 };
+
+// the same projects mid-edit: one action with an empty value and one action name that
+// codevideo-types doesn't know, so none of them pass isCourse / isLesson / isValidActions
+
+export const halfEditedActions: Array<IAction> = [
+  ...helloWorldActions,
+  { name: "author-speak-before", value: "" },
+  { name: "not-an-action", value: "hello" } as unknown as IAction
+];
+
+export const halfEditedLesson: ILesson = { ...helloWorldLesson, actions: halfEditedActions };
+
+export const halfEditedCourse: ICourse = { ...helloWorldCourse, lessons: [halfEditedLesson] };
