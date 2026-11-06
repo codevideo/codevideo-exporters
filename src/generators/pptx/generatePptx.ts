@@ -26,8 +26,8 @@ export const generatePptx = async (
     .replace(/^-|-$/g, '')
     || 'codevideo-export';
   
-  // Generate the PPTX
-  pres.writeFile({ 
+  // Generate the PPTX, and wait for it so a failed write rejects instead of being lost
+  await pres.writeFile({
     fileName: `${cleanFilename}.pptx` 
   });
   

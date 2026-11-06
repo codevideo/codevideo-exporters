@@ -1,4 +1,4 @@
-import { Project, isCourse, isLesson, isValidActions, ExportType } from "@fullstackcraftllc/codevideo-types";
+import { Project, IAction, isCourse, isLesson, isValidActions, ExportType } from "@fullstackcraftllc/codevideo-types";
 import { generateHtmlFromActions } from "./generators/html/generateHtmlFromActions";
 import { generateHtmlFromCourse } from "./generators/html/generateHtmlFromCourse";
 import { generateHtmlFromLesson } from "./generators/html/generateHtmlFromLesson";
@@ -28,86 +28,59 @@ import { generateZipFromLesson } from "./generators/zip/generateZipFromLesson";
 /**
  * A dynamic function that exports a CodeVideo project to a specific format.
  * Can be called from a browser to generate exports in various formats.
+ * Runs exactly one generator and rejects when the project or export type is not supported,
+ * so callers can treat a resolved promise as a finished export.
  * @param project The project (type Project) to export (can be a course, lesson, or actions)
  * @param exportType The desired export format (type ExportFormat)
  * @returns Promise<void>
  */
 export const exportProject = async (project: Project, exportType: ExportType): Promise<void> => {
     // all course exports
-    if (isCourse(project) && exportType === 'markdown') {
-        await generateMarkdownFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'html') {
-        await generateHtmlFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'pdf') {
-        await generatePdfFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'zip') {
-        await generateZipFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'json') {
-        await generateJsonFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'pptx') {
-        await generatePptxFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'tsx') {
-        await generateTsxFromCourse(project);
-    }
-    if (isCourse(project) && exportType === 'jsx') {
-        await generateJsxFromCourse(project);
+    if (isCourse(project)) {
+        switch (exportType) {
+            case 'markdown': return generateMarkdownFromCourse(project);
+            case 'html': return generateHtmlFromCourse(project);
+            case 'pdf': return generatePdfFromCourse(project);
+            case 'zip': return generateZipFromCourse(project);
+            case 'json': return generateJsonFromCourse(project);
+            case 'pptx': return generatePptxFromCourse(project);
+            case 'tsx': return generateTsxFromCourse(project);
+            case 'jsx': return generateJsxFromCourse(project);
+        }
+        throw new Error(`exportProject: '${exportType}' export is not supported for a course`);
     }
 
     // all lesson exports
-    if (isLesson(project) && exportType === 'markdown') {
-        await generateMarkdownFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'html') {
-        await generateHtmlFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'pdf') {
-        await generatePdfFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'zip') {
-        await generateZipFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'json') {
-        await generateJsonFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'pptx') {
-        await generatePptxFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'tsx') {
-        await generateTsxFromLesson(project);
-    }
-    if (isLesson(project) && exportType === 'jsx') {
-        await generateJsxFromLesson(project);
+    if (isLesson(project)) {
+        switch (exportType) {
+            case 'markdown': return generateMarkdownFromLesson(project);
+            case 'html': return generateHtmlFromLesson(project);
+            case 'pdf': return generatePdfFromLesson(project);
+            case 'zip': return generateZipFromLesson(project);
+            case 'json': return generateJsonFromLesson(project);
+            case 'pptx': return generatePptxFromLesson(project);
+            case 'tsx': return generateTsxFromLesson(project);
+            case 'jsx': return generateJsxFromLesson(project);
+        }
+        throw new Error(`exportProject: '${exportType}' export is not supported for a lesson`);
     }
 
     // all actions exports
-    if (isValidActions(project) && exportType === 'markdown') {
-        await generateMarkdownFromActions(project);
+    // isValidActions returns an { isValid, errors } object (codevideo-types >= 2.1.32), so the result itself is always truthy
+    if (isValidActions(project).isValid) {
+        const actions = project as Array<IAction>;
+        switch (exportType) {
+            case 'markdown': return generateMarkdownFromActions(actions);
+            case 'html': return generateHtmlFromActions(actions);
+            case 'pdf': return generatePdfFromActions(actions);
+            case 'zip': return generateZipFromActions(actions);
+            case 'json': return generateJsonFromActions(actions);
+            case 'pptx': return generatePptxFromActions(actions);
+            case 'tsx': return generateTsxFromActions(actions);
+            case 'jsx': return generateJsxFromActions(actions);
+        }
+        throw new Error(`exportProject: '${exportType}' export is not supported for actions`);
     }
-    if (isValidActions(project) && exportType === 'html') {
-        await generateHtmlFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'pdf') {
-        await generatePdfFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'zip') {
-        await generateZipFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'json') {
-        await generateJsonFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'pptx') {
-        await generatePptxFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'tsx') {
-        await generateTsxFromActions(project);
-    }
-    if (isValidActions(project) && exportType === 'jsx') {
-        await generateJsxFromActions(project);
-    }
+
+    throw new Error('exportProject: project is not a valid course, lesson, or actions array');
 }

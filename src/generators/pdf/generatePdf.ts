@@ -8,8 +8,8 @@ export const generatePdf = async (markdown: string) => {
 
   const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    console.error('Failed to open print window');
-    return;
+    // usually a popup blocker; reject so callers don't treat this as a finished export
+    throw new Error('Failed to open print window');
   }
 
   try {
@@ -42,5 +42,6 @@ export const generatePdf = async (markdown: string) => {
   } catch (error) {
     console.error('Error during PDF conversion:', error);
     printWindow.close();
+    throw error;
   }
 };
